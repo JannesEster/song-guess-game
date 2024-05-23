@@ -112,9 +112,12 @@ function submitGuess() {
     clearInterval(progressInterval);
     audio.pause();
 
-    const guess = document.getElementById('guess').value;
+    const guessInput = document.getElementById('guess');
+    const guess = guessInput.value;
     const result = document.getElementById('result');
     const song = playedSongs[playedSongs.length - 1];
+
+    guessInput.value = ''; // Clear the guess input box
 
     if (guess.toLowerCase() === song.name.toLowerCase()) {
         players[currentPlayerIndex].score += 1;
