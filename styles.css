@@ -1,0 +1,126 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+#initialContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 100px;
+}
+
+#initialTitle {
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+#subTitle {
+    font-size: 1.5em;
+    color: #555;
+    margin-bottom: 40px;
+}
+
+#gameTitle {
+    font-size: 3em;
+    color: #333;
+    margin-top: 20px;
+}
+
+#gameContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+}
+
+#scoreboard {
+    margin-top: 20px;
+    font-size: 1.5em;
+}
+
+#roundInfo {
+    font-size: 2em;
+    color: #333;
+    margin-top: 20px;
+}
+
+#songControls {
+    margin-top: 30px;
+}
+
+#startSong {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 32px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#startSong:hover {
+    background-color: #45a049;
+}
+
+#progressContainer {
+    width: 100%;
+    background-color: #ddd;
+    margin-top: 20px;
+    height: 30px;
+    border-radius: 5px;
+}
+
+#progressBar {
+    width: 0;
+    height: 100%;
+    background-color: #4CAF50;
+    border-radius: 5px;
+}
+
+#guess {
+    margin-top: 20px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+#submitGuess {
+    background-color: #008CBA;
+    color: white;
+    padding: 15px 32px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+#submitGuess:hover {
+    background-color: #007bb5;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #333;
+}
+
+#gameOver {
+    margin-top: 20px;
+    font-size: 1.5em;
+    color: red;
+}
+
+input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    margin: 20px;
+}
+
+button {
+    cursor: pointer;
+}

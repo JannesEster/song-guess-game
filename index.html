@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Song</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="initialContainer">
+        <h1 id="initialTitle">How Well Do You Know Your Music?</h1>
+        <h2 id="subTitle">Guess the Song!</h2>
+        <input type="text" id="playerName" placeholder="Enter your name">
+        <button id="startGame">Start Game</button>
+    </div>
+
+    <div id="gameContainer" style="display: none;">
+        <h1 id="gameTitle">Guess the Song!</h1>
+        <div id="scoreboard"></div>
+        <div id="roundInfo"></div>
+        <div id="songControls" style="display: none;">
+            <button id="startSong">Start Song</button>
+            <div id="progressContainer">
+                <div id="progressBar"></div>
+            </div>
+            <input type="text" id="guess" placeholder="Enter your guess">
+            <button id="submitGuess">Submit Guess</button>
+        </div>
+        <div id="result"></div>
+        <div id="gameOver" style="display: none;">Game Over</div>
+    </div>
+
+    <audio id="song" controls style="display: none;"></audio>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
