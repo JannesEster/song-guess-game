@@ -19,18 +19,22 @@
         <div id="scoreboard"></div>
         <div id="roundInfo"></div>
         <div id="songControls" style="display: none;">
-            <button id="startSong">Start Song</button>
+            <button id="startSong">Play Song!</button>
+            <div id="result"></div> <!-- Moved result message here -->
             <div id="progressContainer">
                 <div id="progressBar"></div>
             </div>
             <input type="text" id="guess" placeholder="Enter your guess">
             <button id="submitGuess">Submit Guess</button>
         </div>
-        <div id="result"></div>
         <div id="gameOver" style="display: none;">Game Over</div>
     </div>
 
+
     <audio id="song" controls style="display: none;"></audio>
+    <audio id="correctSound" src="sounds/Correct(fixed).MP3" preload="auto"></audio>
+    <audio id="incorrectSound" src="sounds/Incorrect.MP3" preload="auto"></audio>
+    <audio id="gameOverSound" src="Sounds/End(FIxed).MP3" preload="auto"></audio>
 
     <script src="scripts.js"></script>
 </body>

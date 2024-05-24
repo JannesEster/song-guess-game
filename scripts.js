@@ -13,6 +13,9 @@ let currentRound = 1;
 const maxRounds = 3;
 
 let audio;
+let correctSound;
+let incorrectSound;
+let gameOverSound;
 let progressInterval;
 let incorrectGuessCount = 0;
 
@@ -49,8 +52,13 @@ function startGame() {
 
     document.getElementById('gameContainer').style.display = 'block';
     document.getElementById('roundInfo').innerText = `Round ${currentRound}`;
+    document.getElementById('result').innerText = "Good Luck! Press play to start the game!";
 
     audio = document.getElementById('song');
+    correctSound = document.getElementById('correctSound');
+    incorrectSound = document.getElementById('incorrectSound');
+    gameOverSound = document.getElementById('gameOverSound');
+
     audio.removeEventListener('playing', onAudioPlaying);
     audio.removeEventListener('pause', onAudioPause);
     audio.removeEventListener('loadedmetadata', onAudioLoadedMetadata);
@@ -64,6 +72,7 @@ function startGame() {
 
     updateScoreboard();
 }
+
 
 function onAudioPlaying() {
     console.log('Song is playing');
@@ -122,13 +131,19 @@ function submitGuess() {
     if (guess.toLowerCase() === song.name.toLowerCase()) {
         players[currentPlayerIndex].score += 1;
         result.innerText = `Correct! The song is "${song.name}"`;
+        correctSound.play();
         incorrectGuessCount = 0;
-        setTimeout(nextRound, 2000); // Move to the next round after 2 seconds
+        setTimeout(() => {
+            nextRound();
+        }, 2000); // Move to the next round after an additional 2 seconds
     } else {
         incorrectGuessCount++;
+        incorrectSound.play();
         if (incorrectGuessCount >= 3) {
             incorrectGuessCount = 0;
-            setTimeout(nextRound, 2000); // Move to the next round after 3 incorrect guesses
+            setTimeout(() => {
+                nextRound();
+            }, 2000); // Move to the next round after an additional 2 seconds
         } else {
             result.innerText = 'Incorrect! Try again.';
             setTimeout(() => {
@@ -157,15 +172,20 @@ function submitGuess() {
     updateScoreboard();
 }
 
+
 function nextRound() {
+    document.getElementById('result').innerText = "Next Round! Play the song once you are ready!";
     if (currentRound >= maxRounds) {
         document.getElementById('gameOver').style.display = 'block';
         document.getElementById('roundInfo').style.display = 'none';
         document.getElementById('songControls').style.display = 'none';
+        setTimeout(() => {
+            gameOverSound.play();
+        }, 2000); // Delay before playing the game over sound
     } else {
         currentRound++;
         document.getElementById('roundInfo').innerText = `Round ${currentRound}`;
-        startSong();
+        document.getElementById('startSong').style.display = 'block';
     }
 }
 
@@ -178,6 +198,7 @@ function updateScoreboard() {
         scoreboard.appendChild(playerScore);
     });
 }
+
 
 document.getElementById('startGame').onclick = startGame;
 document.getElementById('startSong').onclick = startSong;
