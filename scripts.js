@@ -26,7 +26,6 @@ window.onload = function() {
     });
 };
 
-
 const songs = [
     { id: 1, name: "Turn down for what", url: "songs/Turn Down for What.m4a" },
     { id: 2, name: "Jump around", url: "songs/Jump Around.mp3" },
@@ -34,12 +33,16 @@ const songs = [
     { id: 4, name: "We like to party", url: "songs/We Like to Party! (the Vengabus).m4a" },
 ];
 
+let playCount = 0;
+const maxPlaysPerRound = 2;
 let players = [];
 let currentPlayerIndex = 0;
 let playedSongs = [];
 let availableSongs = [...songs];
 let currentRound = 1;
 const maxRounds = 3;
+let currentSong;
+let isPlaying = false;
 
 let audio;
 let correctSound;
@@ -109,9 +112,6 @@ function startGame() {
     updateScoreboard();
 }
 
-
-
-
 function onAudioPlaying() {
     console.log('Song is playing');
 }
@@ -135,6 +135,8 @@ function onAudioLoadedMetadata() {
             clearInterval(progressInterval);
             document.getElementById('progressBar').style.width = '0%';
             audio.pause();
+            isPlaying = false;
+            document.getElementById('startSong').disabled = false; // Enable button after playback
         }
     }, 100);
 
@@ -147,17 +149,32 @@ function onAudioLoadedMetadata() {
 }
 
 function startSong() {
+    if (isPlaying || playCount >= maxPlaysPerRound) return; // Prevent starting another song during playback or if limit reached
+
     clearInterval(progressInterval);
     document.getElementById('result').innerText = '';
-    const song = getRandomSong();
-    audio.src = song.url;
-    audio.dataset.id = song.id;
+    if (!currentSong) {
+        currentSong = getRandomSong();
+        audio.src = currentSong.url;
+        audio.dataset.id = currentSong.id;
+    }
+    document.getElementById('startSong').disabled = true; // Disable button during playback
     audio.load(); // Ensures the new song is loaded and metadata event is triggered
+    isPlaying = true;
+    playCount++; // Increment play count
+
+    // Enable button if play count is less than the max limit after playback
+    if (playCount < maxPlaysPerRound) {
+        setTimeout(() => {
+            document.getElementById('startSong').disabled = false;
+        }, 10000); // Wait for playback to finish
+    }
 }
 
 function submitGuess() {
     clearInterval(progressInterval);
     audio.pause();
+    isPlaying = false;
 
     const guessInput = document.getElementById('guess');
     const guess = guessInput.value;
@@ -173,7 +190,7 @@ function submitGuess() {
         incorrectGuessCount = 0;
         setTimeout(() => {
             nextRound();
-        }, 4000); // Move to the next round after an additional 4 seconds
+        }, 3000); // Move to the next round after an additional 3 seconds
     } else {
         incorrectGuessCount++;
         incorrectSound.play();
@@ -181,7 +198,7 @@ function submitGuess() {
             incorrectGuessCount = 0;
             setTimeout(() => {
                 nextRound();
-            }, 4000); // Move to the next round after an additional 4 seconds
+            }, 3000); // Move to the next round after an additional 3 seconds
         } else {
             result.innerText = 'Incorrect! Try again.';
             setTimeout(() => {
@@ -198,34 +215,48 @@ function submitGuess() {
                             clearInterval(progressInterval);
                             document.getElementById('progressBar').style.width = '0%';
                             audio.pause();
+                            isPlaying = false;
+                            if (playCount < maxPlaysPerRound) {
+                                setTimeout(() => {
+                                    document.getElementById('startSong').disabled = false;
+                                }, 3000); // Enable button after 3 seconds
+                            }
                         }
                     }, 100);
                 }).catch(error => {
                     console.error('Failed to start playback:', error);
                 });
-            }, 3000);
+            }, 2000);
         }
     }
+
+    document.getElementById('startSong').disabled = true; // Disable button for 4 seconds
+    setTimeout(() => {
+        document.getElementById('startSong').disabled = false;
+    }, 4000);
 
     updateScoreboard();
 }
 
-
 function nextRound() {
     document.getElementById('result').innerText = "Next Round! Play the song once you are ready!";
+    currentSong = null; // Reset current song for the next round
+    playCount = 0; // Reset play count for the next round
     if (currentRound >= maxRounds) {
         document.getElementById('gameOver').style.display = 'block';
         document.getElementById('roundInfo').style.display = 'none';
         document.getElementById('songControls').style.display = 'none';
         setTimeout(() => {
             gameOverSound.play();
-        }, 100); // Delay before playing the game over sound
+        }, 2000); // Delay before playing the game over sound
     } else {
         currentRound++;
         document.getElementById('roundInfo').innerText = `Round ${currentRound}`;
         document.getElementById('startSong').style.display = 'block';
+        document.getElementById('startSong').disabled = false; // Enable button for the next round
     }
 }
+
 
 function updateScoreboard() {
     const scoreboard = document.getElementById('scoreboard');
@@ -236,7 +267,6 @@ function updateScoreboard() {
         scoreboard.appendChild(playerScore);
     });
 }
-
 
 document.getElementById('startGame').onclick = startGame;
 document.getElementById('startSong').onclick = startSong;
