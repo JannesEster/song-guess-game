@@ -38,11 +38,6 @@ body {
     margin-top: 50px;
 }
 
-#scoreboard {
-    margin-top: 20px;
-    font-size: 1.5em;
-}
-
 #roundInfo {
     font-size: 2em;
     color: #333;
@@ -116,6 +111,11 @@ body {
     margin-top: 20px;
     font-size: 1.5em;
     color: red;
+}
+
+#scoreboard {
+    margin-top: 30px;
+    font-size: 1.5em;
 }
 
 input[type="text"] {

@@ -52,7 +52,7 @@ function startGame() {
 
     document.getElementById('gameContainer').style.display = 'block';
     document.getElementById('roundInfo').innerText = `Round ${currentRound}`;
-    document.getElementById('result').innerText = "Good Luck! Press play to start the game!";
+    document.getElementById('result').innerText = "Good Luck! Play Song to start the game!";
 
     audio = document.getElementById('song');
     correctSound = document.getElementById('correctSound');
@@ -72,6 +72,7 @@ function startGame() {
 
     updateScoreboard();
 }
+
 
 
 function onAudioPlaying() {
