@@ -135,7 +135,7 @@ function submitGuess() {
         incorrectGuessCount = 0;
         setTimeout(() => {
             nextRound();
-        }, 3000); // Move to the next round after an additional 2 seconds
+        }, 4000); // Move to the next round after an additional 4 seconds
     } else {
         incorrectGuessCount++;
         incorrectSound.play();
@@ -143,7 +143,7 @@ function submitGuess() {
             incorrectGuessCount = 0;
             setTimeout(() => {
                 nextRound();
-            }, 3000); // Move to the next round after an additional 2 seconds
+            }, 4000); // Move to the next round after an additional 4 seconds
         } else {
             result.innerText = 'Incorrect! Try again.';
             setTimeout(() => {
@@ -181,7 +181,7 @@ function nextRound() {
         document.getElementById('songControls').style.display = 'none';
         setTimeout(() => {
             gameOverSound.play();
-        }, 2000); // Delay before playing the game over sound
+        }, 100); // Delay before playing the game over sound
     } else {
         currentRound++;
         document.getElementById('roundInfo').innerText = `Round ${currentRound}`;
