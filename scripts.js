@@ -14,6 +14,16 @@ document.getElementById('volumeSlider').oninput = function() {
     });
 };
 
+function preloadSongs() {
+    const preloadContainer = document.getElementById('preloadContainer');
+    songs.forEach(song => {
+        const audioElement = document.createElement('audio');
+        audioElement.src = song.url;
+        audioElement.preload = 'auto';
+        preloadContainer.appendChild(audioElement);
+    });
+}
+
 // Make sure the volume is set when the page loads
 window.onload = function() {
     const volume = document.getElementById('volumeSlider').value;
@@ -31,6 +41,13 @@ const songs = [
     { id: 2, name: "Jump around", url: "songs/Jump Around.mp3" },
     { id: 3, name: "24k magic", url: "songs/24K Magic.m4a" },
     { id: 4, name: "We like to party", url: "songs/We Like to Party! (the Vengabus).m4a" },
+    { id: 5, name: "All the Small Things", url: "songs/All the Small Things.mp3" },
+    { id: 6, name: "One More Time", url: "songs/Daft Punk - One More Time.mp3" },
+    { id: 7, name: "Dreams", url: "songs/Fleetwood Mac - Dreams - 2004 Remastered Edition.mp3" },
+    { id: 8, name: "Starships", url: "songs/Nicki_Minaj-Starships-DJ_Intro___DJ_Outro_Clean 2.mp3" },
+    { id: 9, name: "The Real Slim Shady", url: "songs/The Real Slim Shady (DJ SLICK Extended Mi.mp3" },
+    { id: 10, name: "Titanium", url: "songs/Titanium (Feat. Sia).mp3" },
+    { id: 11, name: "Untouched", url: "songs/Untouched.m4a" }
 ];
 
 let guessesLeft = 3;
@@ -41,7 +58,7 @@ let currentPlayerIndex = 0;
 let playedSongs = [];
 let availableSongs = [...songs];
 let currentRound = 1;
-const maxRounds = 3;
+const maxRounds = 10;
 let currentSong;
 let isPlaying = false;
 
@@ -51,15 +68,23 @@ let incorrectSound;
 let gameOverSound;
 let progressInterval;
 let incorrectGuessCount = 0;
+let lastPlayedSong = null;
 
 function getRandomSong() {
     if (availableSongs.length === 0) {
         availableSongs = [...songs];
         playedSongs = [];
     }
-    const randomIndex = Math.floor(Math.random() * availableSongs.length);
-    const song = availableSongs.splice(randomIndex, 1)[0];
+    
+    let song;
+    do {
+        const randomIndex = Math.floor(Math.random() * availableSongs.length);
+        song = availableSongs[randomIndex];
+    } while (song === lastPlayedSong);
+
+    availableSongs = availableSongs.filter(s => s !== song);
     playedSongs.push(song);
+    lastPlayedSong = song;
     return song;
 }
 
@@ -163,7 +188,9 @@ function startSong() {
         audio.dataset.id = currentSong.id;
     }
     document.getElementById('startSong').disabled = true; // Disable button during playback
-    audio.load(); // Ensures the new song is loaded and metadata event is triggered
+    if (audio.src) {
+        audio.load(); // Ensures the new song is loaded and metadata event is triggered
+    }
     isPlaying = true;
     playCount++; // Increment play count
 
@@ -195,7 +222,7 @@ function submitGuess() {
         document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar
         setTimeout(() => {
             nextRound();
-        }, 3000); // Move to the next round after an additional 3 seconds
+        }, 2000); // Move to the next round after an additional 2 seconds
     } else {
         incorrectGuessCount++;
         guessesLeft--; // Decrement guesses left
@@ -205,7 +232,7 @@ function submitGuess() {
             incorrectGuessCount = 0;
             setTimeout(() => {
                 nextRound();
-            }, 3000); // Move to the next round after an additional 3 seconds
+            }, 2000); // Move to the next round after an additional 2 seconds
         } else {
             result.innerText = 'Incorrect! Try again.';
             setTimeout(() => {
@@ -226,7 +253,7 @@ function submitGuess() {
                             if (playCount < maxPlaysPerRound) {
                                 setTimeout(() => {
                                     document.getElementById('startSong').disabled = false;
-                                }, 3000); // Enable button after 3 seconds
+                                }, 2000); // Enable button after 2 seconds
                             }
                         }
                     }, 100);
@@ -260,13 +287,18 @@ function nextRound() {
         document.getElementById('songControls').style.display = 'none';
         setTimeout(() => {
             gameOverSound.play();
-        }, 2000); // Delay before playing the game over sound
+        }, 1000); // Delay before playing the game over sound
     } else {
         currentRound++;
+        if (availableSongs.length === 0) {
+            availableSongs = [...songs];
+            playedSongs = [];
+        }
         document.getElementById('roundInfo').innerText = `Round ${currentRound}`;
         document.getElementById('startSong').style.display = 'block';
         document.getElementById('startSong').disabled = false; // Enable button for the next round
     }
+    document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar for the next round
 }
 
 
