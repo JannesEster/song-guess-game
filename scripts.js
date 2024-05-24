@@ -135,7 +135,7 @@ function submitGuess() {
         incorrectGuessCount = 0;
         setTimeout(() => {
             nextRound();
-        }, 2000); // Move to the next round after an additional 2 seconds
+        }, 3000); // Move to the next round after an additional 2 seconds
     } else {
         incorrectGuessCount++;
         incorrectSound.play();
@@ -143,7 +143,7 @@ function submitGuess() {
             incorrectGuessCount = 0;
             setTimeout(() => {
                 nextRound();
-            }, 2000); // Move to the next round after an additional 2 seconds
+            }, 3000); // Move to the next round after an additional 2 seconds
         } else {
             result.innerText = 'Incorrect! Try again.';
             setTimeout(() => {
@@ -165,7 +165,7 @@ function submitGuess() {
                 }).catch(error => {
                     console.error('Failed to start playback:', error);
                 });
-            }, 2000);
+            }, 3000);
         }
     }
 
