@@ -14,6 +14,18 @@ document.getElementById('volumeSlider').oninput = function() {
     });
 };
 
+// Make sure the volume is set when the page loads
+window.onload = function() {
+    const volume = document.getElementById('volumeSlider').value;
+    const audioElements = ['song', 'correctSound', 'incorrectSound', 'gameOverSound', 'testSound'];
+    audioElements.forEach(id => {
+        const audioElement = document.getElementById(id);
+        if (audioElement) {
+            audioElement.volume = volume;
+        }
+    });
+};
+
 
 const songs = [
     { id: 1, name: "Turn down for what", url: "songs/Turn Down for What.m4a" },
