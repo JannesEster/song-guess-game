@@ -33,6 +33,7 @@ const songs = [
     { id: 4, name: "We like to party", url: "songs/We Like to Party! (the Vengabus).m4a" },
 ];
 
+let guessesLeft = 3;
 let playCount = 0;
 const maxPlaysPerRound = 2;
 let players = [];
@@ -65,6 +66,9 @@ function getRandomSong() {
 function startGame() {
     const playerNameInput = document.getElementById('playerName');
     const playerName = playerNameInput.value.trim();
+
+    guessesLeft = 3;
+    document.getElementById('guessesLeft').innerText = `${guessesLeft} Guesses Left`;
 
     if (!playerName) {
         alert('Please enter your name to start the game.');
@@ -188,11 +192,14 @@ function submitGuess() {
         result.innerText = `Correct! The song is "${song.name}"`;
         correctSound.play();
         incorrectGuessCount = 0;
+        document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar
         setTimeout(() => {
             nextRound();
         }, 3000); // Move to the next round after an additional 3 seconds
     } else {
         incorrectGuessCount++;
+        guessesLeft--; // Decrement guesses left
+        document.getElementById('guessesLeft').innerText = `${guessesLeft} ${guessesLeft === 1 ? 'Guess' : 'Guesses'} Left`;
         incorrectSound.play();
         if (incorrectGuessCount >= 3) {
             incorrectGuessCount = 0;
@@ -233,14 +240,19 @@ function submitGuess() {
     document.getElementById('startSong').disabled = true; // Disable button for 4 seconds
     setTimeout(() => {
         document.getElementById('startSong').disabled = false;
-    }, 4000);
+    }, 2000);
 
     updateScoreboard();
 }
 
+
+
+
 function nextRound() {
     document.getElementById('result').innerText = "Next Round! Play the song once you are ready!";
     currentSong = null; // Reset current song for the next round
+    guessesLeft = 3;
+    document.getElementById('guessesLeft').innerText = `${guessesLeft} Guesses Left`;
     playCount = 0; // Reset play count for the next round
     if (currentRound >= maxRounds) {
         document.getElementById('gameOver').style.display = 'block';
