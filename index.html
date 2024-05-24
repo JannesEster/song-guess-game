@@ -10,6 +10,8 @@
     <div id="initialContainer">
         <h1 id="initialTitle">How Well Do You Know Your Music?</h1>
         <h2 id="subTitle">Guess the Song!</h2>
+        <button id="testVolume">Test the Volume</button>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5" orient="vertical">
         <input type="text" id="playerName" placeholder="Enter your name">
         <button id="startGame">Start Game</button>
     </div>
@@ -34,7 +36,8 @@
     <audio id="song" controls style="display: none;"></audio>
     <audio id="correctSound" src="sounds/Correct(fixed).MP3" preload="auto"></audio>
     <audio id="incorrectSound" src="sounds/Incorrect.MP3" preload="auto"></audio>
-    <audio id="gameOverSound" src="Sounds/End(FIxed).MP3" preload="auto"></audio>
+    <audio id="gameOverSound" src="sounds/End(FIxed).MP3" preload="auto"></audio>
+    <audio id="testSound" src="sounds/TestAudio.MP3" preload="auto"></audio> 
 
     <script src="scripts.js"></script>
 </body>

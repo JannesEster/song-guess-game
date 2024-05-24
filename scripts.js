@@ -1,3 +1,20 @@
+document.getElementById('testVolume').onclick = function() {
+    const testSound = document.getElementById('testSound');
+    testSound.play();
+};
+
+document.getElementById('volumeSlider').oninput = function() {
+    const volume = this.value;
+    const audioElements = ['song', 'correctSound', 'incorrectSound', 'gameOverSound', 'testSound'];
+    audioElements.forEach(id => {
+        const audioElement = document.getElementById(id);
+        if (audioElement) {
+            audioElement.volume = volume;
+        }
+    });
+};
+
+
 const songs = [
     { id: 1, name: "Turn down for what", url: "songs/Turn Down for What.m4a" },
     { id: 2, name: "Jump around", url: "songs/Jump Around.mp3" },
@@ -59,6 +76,13 @@ function startGame() {
     incorrectSound = document.getElementById('incorrectSound');
     gameOverSound = document.getElementById('gameOverSound');
 
+    // Stop the test sound if it is playing
+    const testSound = document.getElementById('testSound');
+    if (!testSound.paused) {
+        testSound.pause();
+        testSound.currentTime = 0; // Reset to the beginning
+    }
+
     audio.removeEventListener('playing', onAudioPlaying);
     audio.removeEventListener('pause', onAudioPause);
     audio.removeEventListener('loadedmetadata', onAudioLoadedMetadata);
@@ -72,6 +96,7 @@ function startGame() {
 
     updateScoreboard();
 }
+
 
 
 

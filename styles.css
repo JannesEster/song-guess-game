@@ -25,6 +25,26 @@ body {
     margin-bottom: 40px;
 }
 
+#testVolume {
+    background-color: #FF6347;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+#testVolume:hover {
+    background-color: #FF4500;
+}
+
+#volumeSlider {
+    width: 150px;
+    margin-bottom: 20px;
+}
+
 #gameTitle {
     font-size: 3em;
     color: #333;
