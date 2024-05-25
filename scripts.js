@@ -24,6 +24,24 @@ function preloadSongs() {
     });
 }
 
+function saveScoreboard() {
+    localStorage.setItem('scoreboard', JSON.stringify(players));
+}
+
+function loadScoreboard() {
+    const storedPlayers = localStorage.getItem('scoreboard');
+    if (storedPlayers) {
+        players = JSON.parse(storedPlayers);
+        updateScoreboard();
+    }
+}
+
+function resetScoreboard() {
+    players = [];
+    saveScoreboard();
+    updateScoreboard();
+}
+
 // Make sure the volume is set when the page loads
 window.onload = function() {
     const volume = document.getElementById('volumeSlider').value;
@@ -34,6 +52,8 @@ window.onload = function() {
             audioElement.volume = volume;
         }
     });
+
+    loadScoreboard();
 };
 
 const songs = [
@@ -48,7 +68,7 @@ const songs = [
     { id: 9, name: "The Real Slim Shady", artist: "Eminem", year: 2000, url: "songs/The Real Slim Shady (DJ SLICK Extended Mi.mp3" },
     { id: 10, name: "Titanium", artist: "David Guetta & Sia", year: 2011, url: "songs/Titanium (Feat. Sia).mp3" },
     { id: 11, name: "Untouched", artist: "The Veronicas", year: 2007, url: "songs/Untouched.m4a" },
-    { id: 12, name: "Sandstorm", artist: "Darude", year: 1999, url: "songs/sandstorm (original mix).mp3" },
+    { id: 12, name: "Sandstorm", artist: "Darude", year: 1999, url: "songs/(darude) sandstorm (original mix).mp3" },
     { id: 13, name: "Baby", artist: "Justin Bieber feat. Ludacris", year: 2010, url: "songs/Baby (DJ SLICK Extended Mix).mp3" },
     { id: 14, name: "Blame it on the Boogie", artist: "The Jacksons", year: 1978, url: "songs/Blame it on the Boogie.m4a" },
     { id: 15, name: "Celebration", artist: "Kool & the Gang", year: 1980, url: "songs/Celebration.mp3" },
@@ -70,9 +90,6 @@ const songs = [
     { id: 31, name: "We Are Family", artist: "Sister Sledge", year: 1979, url: "songs/We Are Family.mp3" },
     { id: 32, name: "Yeah 3x", artist: "Chris Brown", year: 2011, url: "songs/Yeah 3x.mp3" }
 ];
-
-
-
 
 let guessesLeft = 3;
 let playCount = 0;
@@ -176,7 +193,8 @@ function onAudioPause(event) {
 
 function onAudioLoadedMetadata() {
     const duration = audio.duration;
-    const randomStartTime = Math.max(0, Math.floor(Math.random() * (duration - 10)));
+    const maxStartTime = duration - 15;
+    const randomStartTime = Math.floor(Math.random() * (maxStartTime - 15)) + 15;
     let currentTime = randomStartTime;
 
     progressInterval = setInterval(() => {
@@ -261,7 +279,8 @@ function submitGuess() {
             result.innerText = 'Incorrect! Try again.';
             setTimeout(() => {
                 const duration = audio.duration;
-                const randomStartTime = Math.max(0, Math.floor(Math.random() * (duration - 10)));
+                const maxStartTime = duration - 15;
+                const randomStartTime = Math.floor(Math.random() * (maxStartTime - 15)) + 15;
                 audio.currentTime = randomStartTime;
                 audio.play().then(() => {
                     progressInterval = setInterval(() => {
@@ -297,8 +316,6 @@ function submitGuess() {
 }
 
 
-
-
 function nextRound() {
     document.getElementById('result').innerText = "Next Round! Play the song once you are ready!";
     currentSong = null; // Reset current song for the next round
@@ -312,6 +329,7 @@ function nextRound() {
         setTimeout(() => {
             gameOverSound.play();
         }, 1000); // Delay before playing the game over sound
+        saveScoreboard(); // Save the scoreboard only when the game is over
     } else {
         currentRound++;
         if (availableSongs.length === 0) {
@@ -339,3 +357,4 @@ function updateScoreboard() {
 document.getElementById('startGame').onclick = startGame;
 document.getElementById('startSong').onclick = startSong;
 document.getElementById('submitGuess').onclick = submitGuess;
+document.getElementById('resetScoreboard').onclick = resetScoreboard;
