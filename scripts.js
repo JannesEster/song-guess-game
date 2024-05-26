@@ -1,6 +1,6 @@
 
 import { db } from './firebase-config.js';
-import { collection, getDocs, addDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
+import { collection, getDocs, addDoc, deleteDoc, doc, runTransaction } from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 
 document.getElementById('testVolume').onclick = function() {
     const testSound = document.getElementById('testSound');
@@ -20,31 +20,47 @@ document.getElementById('volumeSlider').oninput = function() {
 
 async function saveScoreboard() {
     const playersCollection = collection(db, 'players');
-    const playersSnapshot = await getDocs(playersCollection);
-    const playerDocs = playersSnapshot.docs;
 
-    // Delete all previous player documents
-    playerDocs.forEach(async (playerDoc) => {
-        await deleteDoc(doc(db, 'players', playerDoc.id));
-    });
+    console.log("Starting transaction to save scoreboard");
 
-    // Add current players to Firestore
-    players.forEach(async (player) => {
-        await addDoc(collection(db, 'players'), player);
-    });
+    try {
+        await runTransaction(db, async (transaction) => {
+            const playersSnapshot = await getDocs(playersCollection);
+            playersSnapshot.docs.forEach((playerDoc) => {
+                console.log("Deleting player:", playerDoc.id);
+                transaction.delete(playerDoc.ref);
+            });
+
+            players.forEach((player) => {
+                console.log("Adding player:", player);
+                transaction.set(doc(playersCollection), player);
+            });
+        });
+        console.log("Transaction successful");
+    } catch (e) {
+        console.error("Transaction failed: ", e);
+    }
 }
 
 async function loadScoreboard() {
-    const playersCollection = collection(db, 'players');
-    const playersSnapshot = await getDocs(playersCollection);
-    players = playersSnapshot.docs.map(doc => doc.data());
-    updateScoreboard();
+    try {
+        const playersCollection = collection(db, 'players');
+        const playersSnapshot = await getDocs(playersCollection);
+        players = playersSnapshot.docs.map(doc => doc.data());
+        updateScoreboard();
+    } catch (error) {
+        console.error("Error loading scoreboard: ", error);
+    }
 }
 
 async function resetScoreboard() {
-    players = [];
-    await saveScoreboard();
-    updateScoreboard();
+    try {
+        players = [];
+        await saveScoreboard();
+        updateScoreboard();
+    } catch (error) {
+        console.error("Error resetting scoreboard: ", error);
+    }
 }
 
 document.getElementById('resetLeaderboard').onclick = function() {
@@ -56,8 +72,6 @@ document.getElementById('resetLeaderboard').onclick = function() {
     }
 };
 
-
-// Ensure the scoreboard is loaded when the page loads
 window.onload = function() {
     const volume = document.getElementById('volumeSlider').value;
     const audioElements = ['song', 'correctSound', 'incorrectSound', 'gameOverSound', 'testSound'];
@@ -69,9 +83,13 @@ window.onload = function() {
     });
 
     loadScoreboard();
-    document.getElementById('scoreboard').style.display = 'block'; // Show the leaderboard initially
-    document.getElementById('resetLeaderboard').style.display = 'block'; // Show the reset button initially
+    document.getElementById('scoreboard').style.display = 'block';
+    document.getElementById('resetLeaderboard').style.display = 'block';
 };
+
+document.getElementById('startGame').onclick = startGame;
+document.getElementById('startSong').onclick = startSong;
+document.getElementById('submitGuess').onclick = submitGuess;
 
 
 const songs = [
@@ -118,7 +136,7 @@ let currentPlayerIndex = 0;
 let playedSongs = [];
 let availableSongs = [...songs];
 let currentRound = 1;
-const maxRounds = 10;
+const maxRounds = 5;
 let currentSong;
 let isPlaying = false;
 
@@ -413,8 +431,3 @@ document.getElementById('newGame').onclick = function() {
     document.getElementById('songControls').style.display = 'none';
 };
 
-
-
-document.getElementById('startGame').onclick = startGame;
-document.getElementById('startSong').onclick = startSong;
-document.getElementById('submitGuess').onclick = submitGuess;
