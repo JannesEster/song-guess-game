@@ -1,5 +1,5 @@
 
-import { db } from './index.html';
+import { db } from './firebase-config.js';
 import { collection, getDocs, addDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 
 document.getElementById('testVolume').onclick = function() {
@@ -363,4 +363,11 @@ function updateScoreboard() {
 document.getElementById('startGame').onclick = startGame;
 document.getElementById('startSong').onclick = startSong;
 document.getElementById('submitGuess').onclick = submitGuess;
-document.getElementById('resetScoreboard').onclick = resetScoreboard;
+document.getElementById('resetScoreboard').onclick = function() {
+    const password = prompt("Enter the password to reset the scoreboard:");
+    if (password === "gamemaster") {
+        resetScoreboard();
+    } else {
+        alert("Incorrect password. Scoreboard reset canceled.");
+    }
+};

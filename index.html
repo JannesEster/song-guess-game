@@ -44,33 +44,7 @@
     <audio id="gameOverSound" src="sounds/End(FIxed).MP3" preload="auto"></audio>
     <audio id="testSound" src="sounds/TestAudio.MP3" preload="auto"></audio> 
 
-    <script src="scripts.js"></script>
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-analytics.js";
-        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
-   
-      
-        // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-          apiKey: "AIzaSyBK8dqn_CrWn7C4AuNO5FgkoE1NichbGIQ",
-          authDomain: "songguessgame.firebaseapp.com",
-          projectId: "songguessgame",
-          storageBucket: "songguessgame.appspot.com",
-          messagingSenderId: "579068737733",
-          appId: "1:579068737733:web:cfc8c1d136205c510058ac",
-          measurementId: "G-NREGZ768VS"
-        };
-      
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const db = getFirestore(app);
-
-        // Export db for use in scripts.js
-     export { db, collection, getDocs, addDoc, deleteDoc, doc };
-      </script>
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="scripts.js"></script>
 </body>
 </html>
