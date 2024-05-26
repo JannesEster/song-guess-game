@@ -28,6 +28,7 @@ async function saveScoreboard() {
     }
 
     try {
+        console.log(`Saving score for player: ${player.name} with score: ${player.score}`);
         await runTransaction(db, async (transaction) => {
             const playerDocRef = doc(playersCollection, player.name);
             const playerDoc = await transaction.get(playerDocRef);
@@ -46,9 +47,11 @@ async function saveScoreboard() {
 
 async function loadScoreboard() {
     try {
+        console.log("Loading scoreboard...");
         const playersCollection = collection(db, 'players');
         const playersSnapshot = await getDocs(playersCollection);
         players = playersSnapshot.docs.map(doc => doc.data());
+        console.log("Scoreboard loaded: ", players);
         updateScoreboard();
     } catch (error) {
         console.error("Error loading scoreboard: ", error);
@@ -150,7 +153,7 @@ let currentPlayerIndex = 0;
 let playedSongs = [];
 let availableSongs = [...songs];
 let currentRound = 1;
-const maxRounds = 10;
+const maxRounds = 2;
 let currentSong;
 let isPlaying = false;
 
@@ -206,6 +209,7 @@ async function startGame() {
     document.getElementById('resetLeaderboard').style.display = 'none'; // Hide the reset button
 
     document.getElementById('gameContainer').style.display = 'block';
+    document.getElementById('roundInfo').style.display = 'block'; // Ensure roundInfo is visible
     document.getElementById('roundInfo').innerHTML = `Round ${currentRound}<br>Score: ${players[currentPlayerIndex].score}`;
     document.getElementById('result').innerText = "Good Luck! Play Song to start the game!";
 
@@ -441,6 +445,8 @@ document.getElementById('newGame').onclick = function() {
     document.getElementById('guessesLeft').innerText = '';
     document.getElementById('songControls').style.display = 'none';
 };
+
+
 
 document.getElementById('startGame').onclick = startGame;
 document.getElementById('startSong').onclick = startSong;
