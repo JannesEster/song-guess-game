@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess the Song</title>
+    <title>Name That Tune!</title>
     <link rel="stylesheet" href="styles.css">
+    
 </head>
 <body>
     <div id="initialContainer">
         <h1 id="initialTitle">How Well Do You Know Your Music?</h1>
-        <h2 id="subTitle">Guess the Song!</h2>
+        <h2 id="subTitle">Name That Tune!</h2>
         <button id="testVolume">Test the Volume</button>
         <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5" orient="vertical">
         <p id="volumeNotice">*This volume slider does not work on mobile devices (Yet), please adjust your device volume accordingly.</p>
@@ -18,7 +19,7 @@
     </div>
 
     <div id="gameContainer" style="display: none;">
-        <h1 id="gameTitle">Guess the Song!</h1>
+        <h1 id="gameTitle">Name That Tune!</h1>
         <div id="roundInfo"></div>
         <div id="songControls" style="display: none;">
             <button id="startSong" class="button">Play Song!</button> 
@@ -34,7 +35,8 @@
     </div>
 
     <div id="scoreboard"></div>
-    <button id="resetScoreboard" class="button">Reset Scoreboard</button>
+    <button id="resetLeaderboard" class="button" style="display: none;">Reset Leaderboard</button>
+
 
     <div id="preloadContainer" style="display: none;"></div>
 

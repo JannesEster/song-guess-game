@@ -47,6 +47,16 @@ async function resetScoreboard() {
     updateScoreboard();
 }
 
+document.getElementById('resetLeaderboard').onclick = function() {
+    const password = prompt("Enter the password to reset the leaderboard:");
+    if (password === "gamemaster") {
+        resetScoreboard();
+    } else {
+        alert("Incorrect password. Leaderboard reset canceled.");
+    }
+};
+
+
 // Ensure the scoreboard is loaded when the page loads
 window.onload = function() {
     const volume = document.getElementById('volumeSlider').value;
@@ -59,7 +69,10 @@ window.onload = function() {
     });
 
     loadScoreboard();
+    document.getElementById('scoreboard').style.display = 'block'; // Show the leaderboard initially
+    document.getElementById('resetLeaderboard').style.display = 'block'; // Show the reset button initially
 };
+
 
 const songs = [
     { id: 1, name: "Turn down for what", artist: "DJ Snake, Lil Jon", year: 2013, url: "songs/Turn Down for What.m4a" },
@@ -157,9 +170,11 @@ function startGame() {
     playerNameInput.style.display = 'none';
     document.getElementById('startGame').style.display = 'none';
     document.getElementById('initialContainer').style.display = 'none';
+    document.getElementById('scoreboard').style.display = 'none'; // Hide the leaderboard
+    document.getElementById('resetLeaderboard').style.display = 'none'; // Hide the reset button
 
     document.getElementById('gameContainer').style.display = 'block';
-    document.getElementById('roundInfo').innerText = `Round ${currentRound}`;
+    document.getElementById('roundInfo').innerHTML = `Round ${currentRound}<br>Score: ${players[currentPlayerIndex].score}`;
     document.getElementById('result').innerText = "Good Luck! Play Song to start the game!";
 
     audio = document.getElementById('song');
@@ -187,6 +202,8 @@ function startGame() {
 
     updateScoreboard();
 }
+
+
 
 function onAudioPlaying() {
     console.log('Song is playing');
@@ -332,17 +349,18 @@ function nextRound() {
         document.getElementById('gameOver').style.display = 'block';
         document.getElementById('roundInfo').style.display = 'none';
         document.getElementById('songControls').style.display = 'none';
+        document.getElementById('scoreboard').style.display = 'block'; // Show the leaderboard
         setTimeout(() => {
             gameOverSound.play();
         }, 1000); // Delay before playing the game over sound
-        saveScoreboard(); // Save the scoreboard only when the game is over
+        saveScoreboard(); // Save the leaderboard only when the game is over
     } else {
         currentRound++;
         if (availableSongs.length === 0) {
             availableSongs = [...songs];
             playedSongs = [];
         }
-        document.getElementById('roundInfo').innerText = `Round ${currentRound}`;
+        document.getElementById('roundInfo').innerHTML = `Round ${currentRound}<br>Score: ${players[currentPlayerIndex].score}`;
         document.getElementById('startSong').style.display = 'block';
         document.getElementById('startSong').disabled = false; // Enable button for the next round
     }
@@ -350,9 +368,11 @@ function nextRound() {
 }
 
 
+
+
 function updateScoreboard() {
     const scoreboard = document.getElementById('scoreboard');
-    scoreboard.innerHTML = '<h2>Scoreboard</h2>';
+    scoreboard.innerHTML = '<h2>Leaderboard</h2>';
     players.forEach(player => {
         const playerScore = document.createElement('div');
         playerScore.innerText = `${player.name}: ${player.score}`;
@@ -363,11 +383,3 @@ function updateScoreboard() {
 document.getElementById('startGame').onclick = startGame;
 document.getElementById('startSong').onclick = startSong;
 document.getElementById('submitGuess').onclick = submitGuess;
-document.getElementById('resetScoreboard').onclick = function() {
-    const password = prompt("Enter the password to reset the scoreboard:");
-    if (password === "gamemaster") {
-        resetScoreboard();
-    } else {
-        alert("Incorrect password. Scoreboard reset canceled.");
-    }
-};
