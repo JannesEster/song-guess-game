@@ -8,7 +8,7 @@
     
 </head>
 <body>
-    <div id="initialContainer">
+    <div id="initialContainer" style="display: flex; flex-direction: column; align-items: center; margin-top: 100px;">
         <h1 id="initialTitle">How Well Do You Know Your Music?</h1>
         <h2 id="subTitle">Name That Tune!</h2>
         <button id="testVolume">Test the Volume</button>
@@ -31,7 +31,10 @@
             <button id="submitGuess">Submit Guess</button>
             <span id="guessesLeft">3 Guesses Left</span>
         </div>
-        <div id="gameOver" style="display: none;">Game Over</div>
+        <div id="gameOver" style="display: none;">
+            <h1 id="gameOverText">Game Over</h1>
+            <button id="newGame" class="button">New Game</button>
+        </div>
     </div>
 
     <div id="scoreboard"></div>

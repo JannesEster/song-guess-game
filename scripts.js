@@ -370,6 +370,7 @@ function nextRound() {
 
 
 
+
 function updateScoreboard() {
     const scoreboard = document.getElementById('scoreboard');
     scoreboard.innerHTML = '<h2>Leaderboard</h2>';
@@ -379,6 +380,40 @@ function updateScoreboard() {
         scoreboard.appendChild(playerScore);
     });
 }
+
+document.getElementById('newGame').onclick = function() {
+    // Hide game-related elements
+    document.getElementById('gameContainer').style.display = 'none';
+    document.getElementById('gameOver').style.display = 'none';
+
+    // Show initial elements
+    document.getElementById('initialContainer').style.display = 'flex';
+    document.getElementById('playerName').style.display = 'block';
+    document.getElementById('startGame').style.display = 'inline-block';
+    document.getElementById('scoreboard').style.display = 'block'; // Show the leaderboard
+    document.getElementById('resetLeaderboard').style.display = 'block'; // Show the reset button
+
+    // Reset game state
+    currentPlayerIndex = 0;
+    currentRound = 1;
+    guessesLeft = 3;
+    playCount = 0;
+    playedSongs = [];
+    availableSongs = [...songs];
+    isPlaying = false;
+    incorrectGuessCount = 0;
+    lastPlayedSong = null;
+
+    // Reset UI elements
+    document.getElementById('playerName').value = '';
+    document.getElementById('roundInfo').innerText = '';
+    document.getElementById('result').innerText = '';
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('guessesLeft').innerText = '';
+    document.getElementById('songControls').style.display = 'none';
+};
+
+
 
 document.getElementById('startGame').onclick = startGame;
 document.getElementById('startSong').onclick = startSong;
