@@ -1,3 +1,7 @@
+
+import { db } from './index.html';
+import { collection, getDocs, addDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
+
 document.getElementById('testVolume').onclick = function() {
     const testSound = document.getElementById('testSound');
     testSound.play();
@@ -14,35 +18,36 @@ document.getElementById('volumeSlider').oninput = function() {
     });
 };
 
-function preloadSongs() {
-    const preloadContainer = document.getElementById('preloadContainer');
-    songs.forEach(song => {
-        const audioElement = document.createElement('audio');
-        audioElement.src = song.url;
-        audioElement.preload = 'auto';
-        preloadContainer.appendChild(audioElement);
+async function saveScoreboard() {
+    const playersCollection = collection(db, 'players');
+    const playersSnapshot = await getDocs(playersCollection);
+    const playerDocs = playersSnapshot.docs;
+
+    // Delete all previous player documents
+    playerDocs.forEach(async (playerDoc) => {
+        await deleteDoc(doc(db, 'players', playerDoc.id));
+    });
+
+    // Add current players to Firestore
+    players.forEach(async (player) => {
+        await addDoc(collection(db, 'players'), player);
     });
 }
 
-function saveScoreboard() {
-    localStorage.setItem('scoreboard', JSON.stringify(players));
-}
-
-function loadScoreboard() {
-    const storedPlayers = localStorage.getItem('scoreboard');
-    if (storedPlayers) {
-        players = JSON.parse(storedPlayers);
-        updateScoreboard();
-    }
-}
-
-function resetScoreboard() {
-    players = [];
-    saveScoreboard();
+async function loadScoreboard() {
+    const playersCollection = collection(db, 'players');
+    const playersSnapshot = await getDocs(playersCollection);
+    players = playersSnapshot.docs.map(doc => doc.data());
     updateScoreboard();
 }
 
-// Make sure the volume is set when the page loads
+async function resetScoreboard() {
+    players = [];
+    await saveScoreboard();
+    updateScoreboard();
+}
+
+// Ensure the scoreboard is loaded when the page loads
 window.onload = function() {
     const volume = document.getElementById('volumeSlider').value;
     const audioElements = ['song', 'correctSound', 'incorrectSound', 'gameOverSound', 'testSound'];
@@ -91,6 +96,7 @@ const songs = [
     { id: 32, name: "Yeah 3x", artist: "Chris Brown", year: 2011, url: "songs/Yeah 3x.mp3" }
 ];
 
+
 let guessesLeft = 3;
 let playCount = 0;
 const maxPlaysPerRound = 2;
@@ -116,7 +122,7 @@ function getRandomSong() {
         availableSongs = [...songs];
         playedSongs = [];
     }
-    
+
     let song;
     do {
         const randomIndex = Math.floor(Math.random() * availableSongs.length);
