@@ -20,21 +20,23 @@ document.getElementById('volumeSlider').oninput = function() {
 
 async function saveScoreboard() {
     const playersCollection = collection(db, 'players');
+    const player = players[currentPlayerIndex];
 
-    console.log("Starting transaction to save scoreboard");
+    if (!player) {
+        console.error("No current player to save.");
+        return;
+    }
 
     try {
         await runTransaction(db, async (transaction) => {
-            const playersSnapshot = await getDocs(playersCollection);
-            playersSnapshot.docs.forEach((playerDoc) => {
-                console.log("Deleting player:", playerDoc.id);
-                transaction.delete(playerDoc.ref);
-            });
+            const playerDocRef = doc(playersCollection, player.name);
+            const playerDoc = await transaction.get(playerDocRef);
 
-            players.forEach((player) => {
-                console.log("Adding player:", player);
-                transaction.set(doc(playersCollection), player);
-            });
+            if (playerDoc.exists()) {
+                transaction.update(playerDocRef, { score: player.score });
+            } else {
+                transaction.set(playerDocRef, player);
+            }
         });
         console.log("Transaction successful");
     } catch (e) {
@@ -54,12 +56,24 @@ async function loadScoreboard() {
 }
 
 async function resetScoreboard() {
+    const playersCollection = collection(db, 'players');
+
+    console.log("Starting transaction to reset scoreboard");
+
     try {
-        players = [];
-        await saveScoreboard();
-        updateScoreboard();
-    } catch (error) {
-        console.error("Error resetting scoreboard: ", error);
+        await runTransaction(db, async (transaction) => {
+            const playersSnapshot = await getDocs(playersCollection);
+            playersSnapshot.docs.forEach((playerDoc) => {
+                console.log("Deleting player:", playerDoc.id);
+                transaction.delete(playerDoc.ref);
+            });
+
+            players = [];
+        });
+        console.log("Transaction successful");
+        updateScoreboard(); // Update the UI after resetting
+    } catch (e) {
+        console.error("Transaction failed: ", e);
     }
 }
 
