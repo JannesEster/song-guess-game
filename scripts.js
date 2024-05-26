@@ -1,6 +1,6 @@
 
 import { db } from './firebase-config.js';
-import { collection, getDocs, addDoc, deleteDoc, doc, runTransaction } from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
+import { collection, getDocs, addDoc, deleteDoc, doc, runTransaction, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 
 document.getElementById('testVolume').onclick = function() {
     const testSound = document.getElementById('testSound');
@@ -136,7 +136,7 @@ let currentPlayerIndex = 0;
 let playedSongs = [];
 let availableSongs = [...songs];
 let currentRound = 1;
-const maxRounds = 5;
+const maxRounds = 2;
 let currentSong;
 let isPlaying = false;
 
@@ -166,7 +166,7 @@ function getRandomSong() {
     return song;
 }
 
-function startGame() {
+async function startGame() {
     const playerNameInput = document.getElementById('playerName');
     const playerName = playerNameInput.value.trim();
 
@@ -220,8 +220,6 @@ function startGame() {
 
     updateScoreboard();
 }
-
-
 
 function onAudioPlaying() {
     console.log('Song is playing');
@@ -356,7 +354,6 @@ function submitGuess() {
     updateScoreboard();
 }
 
-
 function nextRound() {
     document.getElementById('result').innerText = "Next Round! Play the song once you are ready!";
     currentSong = null; // Reset current song for the next round
@@ -384,10 +381,6 @@ function nextRound() {
     }
     document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar for the next round
 }
-
-
-
-
 
 function updateScoreboard() {
     const scoreboard = document.getElementById('scoreboard');
@@ -430,4 +423,8 @@ document.getElementById('newGame').onclick = function() {
     document.getElementById('guessesLeft').innerText = '';
     document.getElementById('songControls').style.display = 'none';
 };
+
+document.getElementById('startGame').onclick = startGame;
+document.getElementById('startSong').onclick = startSong;
+document.getElementById('submitGuess').onclick = submitGuess;
 
