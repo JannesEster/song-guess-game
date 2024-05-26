@@ -150,7 +150,7 @@ let currentPlayerIndex = 0;
 let playedSongs = [];
 let availableSongs = [...songs];
 let currentRound = 1;
-const maxRounds = 2;
+const maxRounds = 10;
 let currentSong;
 let isPlaying = false;
 
@@ -399,6 +399,10 @@ function nextRound() {
 function updateScoreboard() {
     const scoreboard = document.getElementById('scoreboard');
     scoreboard.innerHTML = '<h2>Leaderboard</h2>';
+
+    // Sort players by score in descending order
+    players.sort((a, b) => b.score - a.score);
+
     players.forEach(player => {
         const playerScore = document.createElement('div');
         playerScore.innerText = `${player.name}: ${player.score}`;
