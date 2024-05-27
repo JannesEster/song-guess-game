@@ -75,6 +75,7 @@ async function loadScoreboard() {
 }
 
 
+
 function cleanupFirestoreListeners() {
     unsubscribeListeners.forEach(unsubscribe => {
         if (typeof unsubscribe === 'function') {
@@ -184,14 +185,19 @@ async function fetchPlayerFromFirebase(playerName) {
     const playerDoc = await getDoc(playerDocRef);
 
     if (playerDoc.exists()) {
-        return playerDoc.data();
+        const playerData = playerDoc.data();
+        // Reset score to zero if the game has finished
+        playerData.score = 0;
+        playerData.finished = false; // Reset finished to false for a new game
+        return playerData;
     } else {
         // If the player doesn't exist in Firebase, create a new player entry
-        const newPlayer = { name: playerName, score: 0, finished: false }; // Initialize with finished as false
+        const newPlayer = { name: playerName, score: 0, highestScore: 0, finished: false, roundsPlayed: 0 }; // Initialize fields
         await setDoc(playerDocRef, newPlayer);
         return newPlayer;
     }
 }
+
 
 
 
@@ -216,6 +222,9 @@ async function startGame() {
     }
 
     const player = await fetchPlayerFromFirebase(playerName); // Fetch player data from Firebase
+    player.roundsPlayed += 1; // Increment rounds played
+    await setDoc(doc(collection(db, 'players'), playerName), player); // Update the database
+
     players = []; // Clear the players array to ensure no players are in it at the start of the game
 
     currentPlayerIndex = -1; // Set to an invalid index to start
@@ -260,6 +269,7 @@ async function startGame() {
     currentPlayer = player; // Store the current player for the session
     updateScoreboard();
 }
+
 
 
 
@@ -428,6 +438,7 @@ async function submitFinalScore() {
     try {
         console.log(`Submitting final score for player: ${player.name} with score: ${player.score}`);
         player.finished = true; // Mark the game as finished
+        player.highestScore = Math.max(player.highestScore, player.score); // Update highest score if current score is higher
         await runTransaction(db, async (transaction) => {
             const playerDocRef = doc(collection(db, 'players'), player.name);
             const playerDoc = await transaction.get(playerDocRef);
@@ -444,6 +455,7 @@ async function submitFinalScore() {
         alert("Failed to submit the final score. Please try again.");
     }
 }
+
 
 
 
@@ -484,15 +496,17 @@ function updateScoreboard() {
     const scoreboard = document.getElementById('scoreboard');
     scoreboard.innerHTML = '<h2>Leaderboard</h2>';
 
-    players.sort((a, b) => b.score - a.score);
+    // Sort players by highest score in descending order
+    players.sort((a, b) => b.highestScore - a.highestScore);
 
     players.forEach(player => {
         const playerScore = document.createElement('div');
-        playerScore.innerText = `${player.name}: ${player.score}`;
+        playerScore.innerText = `${player.name}: ${player.highestScore} `; //(Rounds played: ${player.roundsPlayed}) to display rounds played
         scoreboard.appendChild(playerScore);
     });
     console.log("Scoreboard updated");
 }
+
 
 document.getElementById('newGame').onclick = function() {
     document.getElementById('gameContainer').style.display = 'none';
