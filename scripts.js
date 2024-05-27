@@ -177,6 +177,9 @@ function getRandomSong() {
 }
 
 async function startGame() {
+    // Clear local storage
+    localStorage.clear();
+
     const playerNameInput = document.getElementById('playerName');
     const playerName = playerNameInput.value.trim();
 
@@ -512,4 +515,8 @@ document.getElementById('newGame').onclick = function() {
 document.getElementById('startGame').onclick = startGame;
 document.getElementById('startSong').onclick = startSong;
 document.getElementById('submitGuess').onclick = submitGuess;
-
+document.getElementById('skipRound').onclick = function() {
+    if (!isPlaying) {
+        nextRound();
+    }
+};
