@@ -153,7 +153,7 @@ let currentPlayerIndex = 0;
 let playedSongs = [];
 let availableSongs = [...songs];
 let currentRound = 1;
-const maxRounds = 2;
+const maxRounds = 10;
 let currentSong;
 let isPlaying = false;
 
