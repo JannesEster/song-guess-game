@@ -1,6 +1,7 @@
 
 import { db } from './firebase-config.js';
-import { collection, getDocs, addDoc, deleteDoc, doc, runTransaction, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
+import { collection, getDocs, addDoc, deleteDoc, doc, runTransaction, writeBatch, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
+import { songs } from './song-list.js';
 
 document.getElementById('testVolume').onclick = function() {
     const testSound = document.getElementById('testSound');
@@ -42,8 +43,11 @@ async function saveScoreboard() {
         console.log("Transaction successful");
     } catch (e) {
         console.error("Transaction failed: ", e);
+        alert("Failed to save the score. Please try again.");
     }
 }
+
+let unsubscribeListeners = [];
 
 async function loadScoreboard() {
     try {
@@ -53,10 +57,32 @@ async function loadScoreboard() {
         players = playersSnapshot.docs.map(doc => doc.data());
         console.log("Scoreboard loaded: ", players);
         updateScoreboard();
+
+        // Adding Firestore listener and storing its unsubscribe function
+        const unsubscribe = onSnapshot(playersCollection, (snapshot) => {
+            players = snapshot.docs.map(doc => doc.data());
+            console.log("Scoreboard updated from snapshot: ", players);
+            updateScoreboard();
+        });
+
+        unsubscribeListeners.push(unsubscribe); // Store the unsubscribe function
     } catch (error) {
         console.error("Error loading scoreboard: ", error);
     }
 }
+
+function cleanupFirestoreListeners() {
+    unsubscribeListeners.forEach(unsubscribe => {
+        if (typeof unsubscribe === 'function') {
+            unsubscribe();
+        }
+    });
+    unsubscribeListeners = []; // Clear the list after cleanup
+}
+
+window.addEventListener('beforeunload', function () {
+    cleanupFirestoreListeners();
+});
 
 async function resetScoreboard() {
     const playersCollection = collection(db, 'players');
@@ -109,40 +135,7 @@ document.getElementById('startSong').onclick = startSong;
 document.getElementById('submitGuess').onclick = submitGuess;
 
 
-const songs = [
-    { id: 1, name: "Turn down for what", artist: "DJ Snake, Lil Jon", year: 2013, url: "songs/Turn Down for What.m4a" },
-    { id: 2, name: "Jump around", artist: "House of Pain", year: 1992, url: "songs/Jump Around.mp3" },
-    { id: 3, name: "24k magic", artist: "Bruno Mars", year: 2016, url: "songs/24K Magic.m4a" },
-    { id: 4, name: "We like to party", artist: "Vengaboys", year: 1998, url: "songs/We Like to Party! (the Vengabus).m4a" },
-    { id: 5, name: "All the Small Things", artist: "Blink 182", year: 1999, url: "songs/All the Small Things.mp3" },
-    { id: 6, name: "One More Time", artist: "Daft Punk", year: 2000, url: "songs/Daft Punk - One More Time.mp3" },
-    { id: 7, name: "Dreams", artist: "Fleetwood Mac", year: 1977, url: "songs/Fleetwood Mac - Dreams - 2004 Remastered Edition.mp3" },
-    { id: 8, name: "Starships", artist: "Nicki Minaj", year: 2012, url: "songs/Nicki_Minaj-Starships-DJ_Intro___DJ_Outro_Clean 2.mp3" },
-    { id: 9, name: "The Real Slim Shady", artist: "Eminem", year: 2000, url: "songs/The Real Slim Shady (DJ SLICK Extended Mi.mp3" },
-    { id: 10, name: "Titanium", artist: "David Guetta & Sia", year: 2011, url: "songs/Titanium (Feat. Sia).mp3" },
-    { id: 11, name: "Untouched", artist: "The Veronicas", year: 2007, url: "songs/Untouched.m4a" },
-    { id: 12, name: "Sandstorm", artist: "Darude", year: 1999, url: "songs/(darude) sandstorm (original mix).mp3" },
-    { id: 13, name: "Baby", artist: "Justin Bieber feat. Ludacris", year: 2010, url: "songs/Baby (DJ SLICK Extended Mix).mp3" },
-    { id: 14, name: "Blame it on the Boogie", artist: "The Jacksons", year: 1978, url: "songs/Blame it on the Boogie.m4a" },
-    { id: 15, name: "Celebration", artist: "Kool & the Gang", year: 1980, url: "songs/Celebration.mp3" },
-    { id: 16, name: "Crank That", artist: "Soulja Boy Tell 'Em", year: 2007, url: "songs/Crank That (Soulja Boy).m4a" },
-    { id: 17, name: "Dancing Queen", artist: "ABBA", year: 1976, url: "songs/Dancing Queen.m4a" },
-    { id: 18, name: "Freaks", artist: "Timmy Trumpet & Savage", year: 2014, url: "songs/Freaks (Radio Edit).m4a" },
-    { id: 19, name: "Good Vibrations", artist: "The Beach Boys", year: 1966, url: "songs/Good Vibrations.m4a" },
-    { id: 20, name: "Ice Ice Baby", artist: "Vanilla Ice", year: 1990, url: "songs/Ice Ice Baby.mp3" },
-    { id: 21, name: "Jenny from the Block", artist: "Jennifer Lopez", year: 2002, url: "songs/Jenny from the Block.m4a" },
-    { id: 22, name: "Just Dance", artist: "Lady Gaga", year: 2008, url: "songs/Just Dance.m4a" },
-    { id: 23, name: "Levels", artist: "Avicii", year: 2011, url: "songs/Levels.m4a" },
-    { id: 24, name: "Love Story", artist: "Taylor Swift", year: 2008, url: "songs/Love Story.mp3" },
-    { id: 25, name: "Shake It Off", artist: "Taylor Swift", year: 2014, url: "songs/Shake It Off.m4a" },
-    { id: 26, name: "Wannabe", artist: "Spice Girls", year: 1996, url: "songs/Spice Girls - Wannabe.mp3" },
-    { id: 27, name: "Teenage Dirtbag", artist: "Wheatus", year: 2000, url: "songs/Teenage Dirtbag.mp3" },
-    { id: 28, name: "Life Is A Highway", artist: "Tom Cochrane", year: 1991, url: "songs/Tom Cochrane - Life Is A Highway.mp3" },
-    { id: 29, name: "Tour", artist: "Macky Gee", year: 2017, url: "songs/Tour.m4a" },
-    { id: 30, name: "Uptown Girl", artist: "Billy Joel", year: 1983, url: "songs/Uptown Girl.mp3" },
-    { id: 31, name: "We Are Family", artist: "Sister Sledge", year: 1979, url: "songs/We Are Family.mp3" },
-    { id: 32, name: "Yeah 3x", artist: "Chris Brown", year: 2011, url: "songs/Yeah 3x.mp3" }
-];
+
 
 
 let guessesLeft = 3;
@@ -195,11 +188,12 @@ async function startGame() {
         return;
     }
 
-    if (!players.some(player => player.name === playerName)) {
-        players.push({ name: playerName, score: 0 });
+    let player = loadScoreFromLocalStorage(playerName);
+    if (!players.some(p => p.name === playerName)) {
+        players.push(player);
     }
 
-    currentPlayerIndex = players.findIndex(player => player.name === playerName);
+    currentPlayerIndex = players.findIndex(p => p.name === playerName);
     currentRound = 1;
 
     playerNameInput.style.display = 'none';
@@ -238,6 +232,8 @@ async function startGame() {
 
     updateScoreboard();
 }
+
+
 
 function onAudioPlaying() {
     console.log('Song is playing');
@@ -301,6 +297,24 @@ function startSong() {
     }
 }
 
+function saveScoreToLocalStorage() {
+    const player = players[currentPlayerIndex];
+    if (player) {
+        localStorage.setItem(player.name, JSON.stringify(player));
+        console.log(`Saved score to local storage for ${player.name}: ${player.score}`);
+    }
+}
+
+// Function to load score from local storage
+function loadScoreFromLocalStorage(playerName) {
+    const savedPlayer = localStorage.getItem(playerName);
+    if (savedPlayer) {
+        console.log(`Loaded score from local storage for ${playerName}`);
+        return JSON.parse(savedPlayer);
+    }
+    return { name: playerName, score: 0 };
+}
+
 function submitGuess() {
     clearInterval(progressInterval);
     audio.pause();
@@ -315,6 +329,7 @@ function submitGuess() {
 
     if (guess.toLowerCase() === song.name.toLowerCase()) {
         players[currentPlayerIndex].score += 1;
+        saveScoreToLocalStorage();
         result.innerText = `Correct! The song is "${song.name}"`;
         correctSound.play();
         incorrectGuessCount = 0;
@@ -372,34 +387,78 @@ function submitGuess() {
     updateScoreboard();
 }
 
-function nextRound() {
-    document.getElementById('result').innerText = "Next Round! Play the song once you are ready!";
-    currentSong = null; // Reset current song for the next round
-    guessesLeft = 3;
-    document.getElementById('guessesLeft').innerText = `${guessesLeft} Guesses Left`;
-    playCount = 0; // Reset play count for the next round
-    if (currentRound >= maxRounds) {
-        document.getElementById('gameOver').style.display = 'block';
-        document.getElementById('roundInfo').style.display = 'none';
-        document.getElementById('songControls').style.display = 'none';
-        document.getElementById('scoreboard').style.display = 'block'; // Show the leaderboard
-        setTimeout(() => {
-            gameOverSound.play();
-        }, 1000); // Delay before playing the game over sound
-        saveScoreboard(); // Save the leaderboard only when the game is over
-    } else {
-        currentRound++;
-        if (availableSongs.length === 0) {
-            availableSongs = [...songs];
-            playedSongs = [];
-        }
-        document.getElementById('roundInfo').innerHTML = `Round ${currentRound}<br>Score: ${players[currentPlayerIndex].score}`;
-        document.getElementById('startSong').style.display = 'block';
-        document.getElementById('startSong').disabled = false; // Enable button for the next round
-    }
-    document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar for the next round
-}
 
+
+    document.getElementById('startSong').disabled = true; // Disable button for 4 seconds
+    setTimeout(() => {
+        document.getElementById('startSong').disabled = false;
+    }, 2000);
+
+    updateScoreboard();
+
+
+
+    async function submitFinalScore() {
+        const player = players[currentPlayerIndex];
+        if (!player) {
+            console.error("No current player to save.");
+            return;
+        }
+    
+        const savedPlayer = loadScoreFromLocalStorage(player.name);
+        if (savedPlayer) {
+            try {
+                console.log(`Submitting final score for player: ${savedPlayer.name} with score: ${savedPlayer.score}`);
+                await runTransaction(db, async (transaction) => {
+                    const playerDocRef = doc(collection(db, 'players'), savedPlayer.name);
+                    const playerDoc = await transaction.get(playerDocRef);
+    
+                    if (playerDoc.exists()) {
+                        transaction.update(playerDocRef, { score: savedPlayer.score });
+                    } else {
+                        transaction.set(playerDocRef, savedPlayer);
+                    }
+                });
+                console.log("Final score submission successful");
+                localStorage.removeItem(savedPlayer.name); // Clear local storage after submitting
+            } catch (e) {
+                console.error("Final score submission failed: ", e);
+                alert("Failed to submit the final score. Please try again.");
+            }
+        }
+    }
+    
+
+    function nextRound() {
+        document.getElementById('result').innerText = "Next Round! Play the song once you are ready!";
+        currentSong = null; // Reset current song for the next round
+        guessesLeft = 3;
+        document.getElementById('guessesLeft').innerText = `${guessesLeft} Guesses Left`;
+        playCount = 0; // Reset play count for the next round
+        if (currentRound >= maxRounds) {
+            document.getElementById('gameOver').style.display = 'block';
+            document.getElementById('roundInfo').style.display = 'none';
+            document.getElementById('songControls').style.display = 'none';
+            document.getElementById('scoreboard').style.display = 'block'; // Show the leaderboard
+            setTimeout(() => {
+                gameOverSound.play();
+            }, 1000); // Delay before playing the game over sound
+            submitFinalScore(); // Submit the final score when the game is over
+        } else {
+            currentRound++;
+            if (availableSongs.length === 0) {
+                availableSongs = [...songs];
+                playedSongs = [];
+            }
+            document.getElementById('roundInfo').innerHTML = `Round ${currentRound}<br>Score: ${players[currentPlayerIndex].score}`;
+            document.getElementById('startSong').style.display = 'block';
+            document.getElementById('startSong').disabled = false; // Enable button for the next round
+        }
+        document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar for the next round
+    }
+    
+
+// Update the scoreboard
 function updateScoreboard() {
     const scoreboard = document.getElementById('scoreboard');
     scoreboard.innerHTML = '<h2>Leaderboard</h2>';
@@ -412,7 +471,9 @@ function updateScoreboard() {
         playerScore.innerText = `${player.name}: ${player.score}`;
         scoreboard.appendChild(playerScore);
     });
+    console.log("Scoreboard updated");
 }
+
 
 document.getElementById('newGame').onclick = function() {
     // Hide game-related elements
