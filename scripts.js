@@ -1,7 +1,7 @@
 import { db } from './firebase-config.js';
-import { collection, getDocs, addDoc, deleteDoc, doc, runTransaction, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
+import { collection, getDocs, addDoc, deleteDoc, doc, runTransaction, onSnapshot, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js';
 import { songs } from './song-list.js';
-import { gameConfig } from './game-config.js'; // Import the game configuration
+import { gameConfig } from './game-config.js';
 
 document.getElementById('testVolume').onclick = function() {
     const testSound = document.getElementById('testSound');
@@ -171,11 +171,33 @@ function getRandomSong() {
     return song;
 }
 
+async function fetchPlayerFromFirebase(playerName) {
+    const playersCollection = collection(db, 'players');
+    const playerDocRef = doc(playersCollection, playerName);
+    const playerDoc = await getDoc(playerDocRef);
+
+    if (playerDoc.exists()) {
+        return playerDoc.data();
+    } else {
+        // If the player doesn't exist in Firebase, create a new player entry
+        const newPlayer = { name: playerName, score: 0 };
+        await setDoc(playerDocRef, newPlayer);
+        return newPlayer;
+    }
+}
+
+
 async function startGame() {
-    localStorage.clear();
+    localStorage.clear(); // Clear local storage before starting a new game
 
     const playerNameInput = document.getElementById('playerName');
-    const playerName = playerNameInput.value.trim();
+    let playerName = playerNameInput.value.trim();
+
+    if (!playerName) {
+        playerName = sessionStorage.getItem('currentPlayer');
+    } else {
+        sessionStorage.setItem('currentPlayer', playerName);
+    }
 
     guessesLeft = 3;
     document.getElementById('guessesLeft').innerText = `${guessesLeft} Guesses Left`;
@@ -185,22 +207,22 @@ async function startGame() {
         return;
     }
 
-    let player = loadScoreFromLocalStorage(playerName);
-    if (!players.some(p => p.name === playerName)) {
-        players.push(player);
-    }
+    const player = await fetchPlayerFromFirebase(playerName); // Fetch player data from Firebase
+    players = [player]; // Ensure only the current player is in the players array
 
     currentPlayerIndex = players.findIndex(p => p.name === playerName);
     currentRound = 1;
 
+    console.log(`Starting game for player: ${players[currentPlayerIndex].name}`);
+
     playerNameInput.style.display = 'none';
     document.getElementById('startGame').style.display = 'none';
     document.getElementById('initialContainer').style.display = 'none';
-    document.getElementById('scoreboard').style.display = 'none';
-    document.getElementById('resetLeaderboard').style.display = 'none';
+    document.getElementById('scoreboard').style.display = 'none'; // Hide the leaderboard
+    document.getElementById('resetLeaderboard').style.display = 'none'; // Hide the reset button
 
     document.getElementById('gameContainer').style.display = 'block';
-    document.getElementById('roundInfo').style.display = 'block';
+    document.getElementById('roundInfo').style.display = 'block'; // Ensure roundInfo is visible
     document.getElementById('roundInfo').innerHTML = `Round ${currentRound}<br>Score: ${players[currentPlayerIndex].score}`;
     document.getElementById('result').innerText = "Good Luck! Play Song to start the game!";
 
@@ -209,10 +231,11 @@ async function startGame() {
     incorrectSound = document.getElementById('incorrectSound');
     gameOverSound = document.getElementById('gameOverSound');
 
+    // Stop the test sound if it is playing
     const testSound = document.getElementById('testSound');
     if (!testSound.paused) {
         testSound.pause();
-        testSound.currentTime = 0;
+        testSound.currentTime = 0; // Reset to the beginning
     }
 
     audio.removeEventListener('playing', onAudioPlaying);
@@ -228,6 +251,7 @@ async function startGame() {
 
     updateScoreboard();
 }
+
 
 function onAudioPlaying() {
     console.log('Song is playing');
@@ -290,6 +314,7 @@ function startSong() {
     }
 }
 
+// Update the saveScoreToLocalStorage function to include the player's name
 function saveScoreToLocalStorage() {
     const player = players[currentPlayerIndex];
     if (player) {
@@ -317,28 +342,28 @@ function submitGuess() {
     const result = document.getElementById('result');
     const song = playedSongs[playedSongs.length - 1];
 
-    guessInput.value = '';
+    guessInput.value = ''; // Clear the guess input box
 
     if (guess.toLowerCase() === song.name.toLowerCase()) {
-        players[currentPlayerIndex].score += 1;
-        saveScoreToLocalStorage();
+        players[currentPlayerIndex].score += 1; // Increment score
+        saveScoreToLocalStorage(); // Save score to local storage
         result.innerText = `Correct! The song is "${song.name}"`;
         correctSound.play();
         incorrectGuessCount = 0;
-        document.getElementById('progressBar').style.width = '0%';
+        document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar
         setTimeout(() => {
             nextRound();
-        }, 2000);
+        }, 2000); // Move to the next round after an additional 2 seconds
     } else {
         incorrectGuessCount++;
-        guessesLeft--;
+        guessesLeft--; // Decrement guesses left
         document.getElementById('guessesLeft').innerText = `${guessesLeft} ${guessesLeft === 1 ? 'Guess' : 'Guesses'} Left`;
         incorrectSound.play();
         if (incorrectGuessCount >= 3) {
             incorrectGuessCount = 0;
             setTimeout(() => {
                 nextRound();
-            }, 2000);
+            }, 2000); // Move to the next round after an additional 2 seconds
         } else {
             result.innerText = 'Incorrect! Try again.';
             setTimeout(() => {
@@ -360,7 +385,7 @@ function submitGuess() {
                             if (playCount < maxPlaysPerRound) {
                                 setTimeout(() => {
                                     document.getElementById('startSong').disabled = false;
-                                }, 2000);
+                                }, 2000); // Enable button after 2 seconds
                             }
                         }
                     }, 100);
@@ -371,12 +396,12 @@ function submitGuess() {
         }
     }
 
-    document.getElementById('startSong').disabled = true;
+    document.getElementById('startSong').disabled = true; // Disable button for 2 seconds
     setTimeout(() => {
         document.getElementById('startSong').disabled = false;
     }, 2000);
 
-    updateScoreboard();
+    updateScoreboard(); // Update the scoreboard after each guess
 }
 
 async function submitFinalScore() {
@@ -410,20 +435,24 @@ async function submitFinalScore() {
 }
 
 function nextRound() {
+    const currentPlayerName = sessionStorage.getItem('currentPlayer');
+    console.log(`Player: ${currentPlayerName} is starting round ${currentRound + 1}`);
+
     document.getElementById('result').innerText = "Next Round! Play the song once you are ready!";
-    currentSong = null;
+    currentSong = null; // Reset current song for the next round
     guessesLeft = 3;
     document.getElementById('guessesLeft').innerText = `${guessesLeft} Guesses Left`;
-    playCount = 0;
+    playCount = 0; // Reset play count for the next round
+
     if (currentRound >= maxRounds) {
         document.getElementById('gameOver').style.display = 'block';
         document.getElementById('roundInfo').style.display = 'none';
         document.getElementById('songControls').style.display = 'none';
-        document.getElementById('scoreboard').style.display = 'block';
+        document.getElementById('scoreboard').style.display = 'block'; // Show the leaderboard
         setTimeout(() => {
             gameOverSound.play();
-        }, 1000);
-        submitFinalScore();
+        }, 1000); // Delay before playing the game over sound
+        submitFinalScore(); // Submit the final score when the game is over
     } else {
         currentRound++;
         if (availableSongs.length === 0) {
@@ -432,10 +461,11 @@ function nextRound() {
         }
         document.getElementById('roundInfo').innerHTML = `Round ${currentRound}<br>Score: ${players[currentPlayerIndex].score}`;
         document.getElementById('startSong').style.display = 'block';
-        document.getElementById('startSong').disabled = false;
+        document.getElementById('startSong').disabled = false; // Enable button for the next round
     }
-    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar for the next round
 }
+
 
 function updateScoreboard() {
     const scoreboard = document.getElementById('scoreboard');
@@ -514,8 +544,8 @@ document.getElementById('submitProblem').onclick = async function() {
         const issuesCollection = collection(db, 'issues');
         await addDoc(issuesCollection, { description: problemDescription, timestamp: new Date() });
         alert('Problem reported successfully.');
-        document.getElementById('problemDescription').value = '';
-        document.getElementById('reportProblemPopup').style.display = 'none';
+        document.getElementById('problemDescription').value = ''; // Clear the textarea
+        document.getElementById('reportProblemPopup').style.display = 'none'; // Close the popup
     } catch (error) {
         console.error('Error reporting problem: ', error);
         alert('Failed to report the problem. Please try again.');
