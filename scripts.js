@@ -54,12 +54,16 @@ async function loadScoreboard() {
         console.log("Loading scoreboard...");
         const playersCollection = collection(db, 'players');
         const playersSnapshot = await getDocs(playersCollection);
-        players = playersSnapshot.docs.map(doc => doc.data());
+        players = playersSnapshot.docs
+            .map(doc => doc.data())
+            .filter(player => player.finished); // Filter to only include finished players
         console.log("Scoreboard loaded: ", players);
         updateScoreboard();
 
         const unsubscribe = onSnapshot(playersCollection, (snapshot) => {
-            players = snapshot.docs.map(doc => doc.data());
+            players = snapshot.docs
+                .map(doc => doc.data())
+                .filter(player => player.finished); // Filter to only include finished players
             console.log("Scoreboard updated from snapshot: ", players);
             updateScoreboard();
         });
@@ -69,6 +73,7 @@ async function loadScoreboard() {
         console.error("Error loading scoreboard: ", error);
     }
 }
+
 
 function cleanupFirestoreListeners() {
     unsubscribeListeners.forEach(unsubscribe => {
@@ -152,6 +157,8 @@ let gameOverSound;
 let progressInterval;
 let incorrectGuessCount = 0;
 let lastPlayedSong = null;
+let currentPlayer = null; 
+
 
 function getRandomSong() {
     if (availableSongs.length === 0) {
@@ -180,11 +187,12 @@ async function fetchPlayerFromFirebase(playerName) {
         return playerDoc.data();
     } else {
         // If the player doesn't exist in Firebase, create a new player entry
-        const newPlayer = { name: playerName, score: 0 };
+        const newPlayer = { name: playerName, score: 0, finished: false }; // Initialize with finished as false
         await setDoc(playerDocRef, newPlayer);
         return newPlayer;
     }
 }
+
 
 
 async function startGame() {
@@ -208,12 +216,12 @@ async function startGame() {
     }
 
     const player = await fetchPlayerFromFirebase(playerName); // Fetch player data from Firebase
-    players = [player]; // Ensure only the current player is in the players array
+    players = []; // Clear the players array to ensure no players are in it at the start of the game
 
-    currentPlayerIndex = players.findIndex(p => p.name === playerName);
+    currentPlayerIndex = -1; // Set to an invalid index to start
     currentRound = 1;
 
-    console.log(`Starting game for player: ${players[currentPlayerIndex].name}`);
+    console.log(`Starting game for player: ${player.name}`);
 
     playerNameInput.style.display = 'none';
     document.getElementById('startGame').style.display = 'none';
@@ -223,7 +231,7 @@ async function startGame() {
 
     document.getElementById('gameContainer').style.display = 'block';
     document.getElementById('roundInfo').style.display = 'block'; // Ensure roundInfo is visible
-    document.getElementById('roundInfo').innerHTML = `Round ${currentRound}<br>Score: ${players[currentPlayerIndex].score}`;
+    document.getElementById('roundInfo').innerHTML = `Round ${currentRound}<br>Score: ${player.score}`;
     document.getElementById('result').innerText = "Good Luck! Play Song to start the game!";
 
     audio = document.getElementById('song');
@@ -249,8 +257,13 @@ async function startGame() {
     document.getElementById('guess').style.display = 'inline';
     document.getElementById('submitGuess').style.display = 'inline';
 
+    currentPlayer = player; // Store the current player for the session
     updateScoreboard();
 }
+
+
+
+
 
 
 function onAudioPlaying() {
@@ -345,8 +358,7 @@ function submitGuess() {
     guessInput.value = ''; // Clear the guess input box
 
     if (guess.toLowerCase() === song.name.toLowerCase()) {
-        players[currentPlayerIndex].score += 1; // Increment score
-        saveScoreToLocalStorage(); // Save score to local storage
+        currentPlayer.score += 1; // Increment score
         result.innerText = `Correct! The song is "${song.name}"`;
         correctSound.play();
         incorrectGuessCount = 0;
@@ -404,39 +416,39 @@ function submitGuess() {
     updateScoreboard(); // Update the scoreboard after each guess
 }
 
+
+
 async function submitFinalScore() {
-    const player = players[currentPlayerIndex];
+    const player = currentPlayer;
     if (!player) {
         console.error("No current player to save.");
         return;
     }
 
-    const savedPlayer = loadScoreFromLocalStorage(player.name);
-    if (savedPlayer) {
-        try {
-            console.log(`Submitting final score for player: ${savedPlayer.name} with score: ${savedPlayer.score}`);
-            await runTransaction(db, async (transaction) => {
-                const playerDocRef = doc(collection(db, 'players'), savedPlayer.name);
-                const playerDoc = await transaction.get(playerDocRef);
+    try {
+        console.log(`Submitting final score for player: ${player.name} with score: ${player.score}`);
+        player.finished = true; // Mark the game as finished
+        await runTransaction(db, async (transaction) => {
+            const playerDocRef = doc(collection(db, 'players'), player.name);
+            const playerDoc = await transaction.get(playerDocRef);
 
-                if (playerDoc.exists()) {
-                    transaction.update(playerDocRef, { score: savedPlayer.score });
-                } else {
-                    transaction.set(playerDocRef, savedPlayer);
-                }
-            });
-            console.log("Final score submission successful");
-            localStorage.removeItem(savedPlayer.name);
-        } catch (e) {
-            console.error("Final score submission failed: ", e);
-            alert("Failed to submit the final score. Please try again.");
-        }
+            if (playerDoc.exists()) {
+                transaction.update(playerDocRef, player);
+            } else {
+                transaction.set(playerDocRef, player);
+            }
+        });
+        console.log("Final score submission successful");
+    } catch (e) {
+        console.error("Final score submission failed: ", e);
+        alert("Failed to submit the final score. Please try again.");
     }
 }
 
+
+
 function nextRound() {
-    const currentPlayerName = sessionStorage.getItem('currentPlayer');
-    console.log(`Player: ${currentPlayerName} is starting round ${currentRound + 1}`);
+    console.log(`Player: ${currentPlayer.name} is starting round ${currentRound + 1}`);
 
     document.getElementById('result').innerText = "Next Round! Play the song once you are ready!";
     currentSong = null; // Reset current song for the next round
@@ -452,19 +464,20 @@ function nextRound() {
         setTimeout(() => {
             gameOverSound.play();
         }, 1000); // Delay before playing the game over sound
+
+        // Add player to the players array and save to Firebase only at game over screen
+        players.push(currentPlayer);
         submitFinalScore(); // Submit the final score when the game is over
     } else {
         currentRound++;
-        if (availableSongs.length === 0) {
-            availableSongs = [...songs];
-            playedSongs = [];
-        }
-        document.getElementById('roundInfo').innerHTML = `Round ${currentRound}<br>Score: ${players[currentPlayerIndex].score}`;
+        document.getElementById('roundInfo').innerHTML = `Round ${currentRound}<br>Score: ${currentPlayer.score}`;
         document.getElementById('startSong').style.display = 'block';
         document.getElementById('startSong').disabled = false; // Enable button for the next round
     }
     document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar for the next round
 }
+
+
 
 
 function updateScoreboard() {
