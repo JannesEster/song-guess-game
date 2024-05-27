@@ -520,3 +520,37 @@ document.getElementById('skipRound').onclick = function() {
         nextRound();
     }
 };
+
+document.getElementById('reportProblem').onclick = function() {
+    document.getElementById('reportProblemPopup').style.display = 'block';
+};
+
+document.querySelector('.close').onclick = function() {
+    document.getElementById('reportProblemPopup').style.display = 'none';
+};
+
+window.onclick = function(event) {
+    if (event.target == document.getElementById('reportProblemPopup')) {
+        document.getElementById('reportProblemPopup').style.display = 'none';
+    }
+};
+
+document.getElementById('submitProblem').onclick = async function() {
+    const problemDescription = document.getElementById('problemDescription').value.trim();
+
+    if (!problemDescription) {
+        alert('Please describe the problem.');
+        return;
+    }
+
+    try {
+        const issuesCollection = collection(db, 'issues');
+        await addDoc(issuesCollection, { description: problemDescription, timestamp: new Date() });
+        alert('Problem reported successfully.');
+        document.getElementById('problemDescription').value = ''; // Clear the textarea
+        document.getElementById('reportProblemPopup').style.display = 'none'; // Close the popup
+    } catch (error) {
+        console.error('Error reporting problem: ', error);
+        alert('Failed to report the problem. Please try again.');
+    }
+};
