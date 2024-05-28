@@ -40,7 +40,7 @@ export const songs = [
     { id: 38, name: "Cheap Wine", artist: "Cold Chisel", year: 1980, difficulty: "Medium", url: "songs/Cheap Wine.mp3" },
     { id: 39, name: "Copperhead Road", artist: "Steve Earle", year: 1988, difficulty: "Medium", url: "songs/Copperhead Road.mp3" },
     { id: 40, name: "Cosmic Girl", artist: "Jamiroquai", year: 1996, difficulty: "Medium", url: "songs/Cosmic Girl.m4a" },
-    { id: 41, name: "Crazy In Love", artist: "Beyonce feat. Jay-Z", year: 2003, difficulty: "Easy", url: "songs/Crazy In Love (DJ JOHNIBOI EXTENDED MIX).mp3" },
+    { id: 41, name: "Crazy In Love", artist: "Beyonce feat. Jay-Z", year: 2003, difficulty: "Easy", url: "songs/Crazy In Love (DJ JOHNNIBOI EXTENDED MIX).mp3" },
     { id: 42, name: "Groove Is In the Heart", artist: "Deee-Lite", year: 1990, difficulty: "Easy", url: "songs/Deee-Lite - Groove Is In The Heart.mp3" },
     { id: 43, name: "Disturbia", artist: "Rihanna", year: 2008, difficulty: "Easy", url: "songs/Disturbia.m4a" },
     { id: 44, name: "Don't You Worry Child", artist: "Swedish House Mafia", year: 2012, difficulty: "Medium", url: "songs/Don't You Worry Child (Radio Edit) [feat. John Martin].m4a" },

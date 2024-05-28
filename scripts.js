@@ -567,31 +567,7 @@ function updateScoreboard() {
 
 
 document.getElementById('newGame').onclick = function() {
-    document.getElementById('gameContainer').style.display = 'none';
-    document.getElementById('gameOver').style.display = 'none';
-
-    document.getElementById('initialContainer').style.display = 'flex';
-    document.getElementById('playerName').style.display = 'block';
-    document.getElementById('startGame').style.display = 'inline-block';
-    document.getElementById('scoreboard').style.display = 'block';
-    document.getElementById('resetLeaderboard').style.display = 'block';
-
-    currentPlayerIndex = 0;
-    currentRound = 1;
-    guessesLeft = 3;
-    playCount = 0;
-    playedSongs = [];
-    availableSongs = [...songs];
-    isPlaying = false;
-    incorrectGuessCount = 0;
-    lastPlayedSong = null;
-
-    document.getElementById('playerName').value = '';
-    document.getElementById('roundInfo').innerText = '';
-    document.getElementById('result').innerText = '';
-    document.getElementById('progressBar').style.width = '0%';
-    document.getElementById('guessesLeft').innerText = '';
-    document.getElementById('songControls').style.display = 'none';
+    location.reload();
 };
 
 document.getElementById('startGame').onclick = startGame;
