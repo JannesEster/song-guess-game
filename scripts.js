@@ -160,17 +160,26 @@ let incorrectGuessCount = 0;
 let lastPlayedSong = null;
 let currentPlayer = null; 
 
+function startSection() {
+    const currentSection = getCurrentSection();
+    document.getElementById('roundInfo').innerHTML = `Section ${currentSectionIndex + 1}, Round ${sectionRound + 1}<br>Score: ${currentPlayer.score}`;
+    document.getElementById('result').innerText = "Good Luck! Play Song to start the game!";
+}
+
 
 function getRandomSong() {
-    if (availableSongs.length === 0) {
-        availableSongs = [...songs];
+    const currentSection = getCurrentSection();
+    const availableSongsForDifficulty = songs.filter(song => song.difficulty === currentSection.difficulty);
+
+    if (availableSongsForDifficulty.length === 0) {
+        availableSongs = [...songs.filter(song => song.difficulty === currentSection.difficulty)];
         playedSongs = [];
     }
 
     let song;
     do {
-        const randomIndex = Math.floor(Math.random() * availableSongs.length);
-        song = availableSongs[randomIndex];
+        const randomIndex = Math.floor(Math.random() * availableSongsForDifficulty.length);
+        song = availableSongsForDifficulty[randomIndex];
     } while (song === lastPlayedSong);
 
     availableSongs = availableSongs.filter(s => s !== song);
@@ -198,10 +207,44 @@ async function fetchPlayerFromFirebase(playerName) {
     }
 }
 
+let currentSectionIndex = 0;
+let sectionRound = 0;
 
+const sectionMessages = [
+    "Let's start nice and easy",
+    "Let's make it slightly harder!",
+    "It's going to get hard now",
+    "You now only have 1 second to hear the song"
+];
 
+function getCurrentSection() {
+    return gameConfig.sections[currentSectionIndex];
+}
+
+function showSectionPopup() {
+    const message = sectionMessages[currentSectionIndex];
+    document.getElementById('sectionPopupMessage').innerText = message;
+    document.getElementById('sectionPopup').style.display = 'block';
+}
+
+function closeSectionPopup() {
+    document.getElementById('sectionPopup').style.display = 'none';
+    document.getElementById('startSectionButton').disabled = true; // Disable the button temporarily
+    setTimeout(() => {
+        document.getElementById('startSectionButton').disabled = false; // Enable the button after a short delay
+    }, 1000); // Adjust the delay as needed
+}
+
+document.getElementById('closeSectionPopup').onclick = closeSectionPopup;
+document.getElementById('startSectionButton').onclick = function() {
+    closeSectionPopup();
+    startSection();
+};
 
 async function startGame() {
+    // existing code...
+
+
     localStorage.clear(); // Clear local storage before starting a new game
 
     const playerNameInput = document.getElementById('playerName');
@@ -266,7 +309,20 @@ async function startGame() {
     document.getElementById('guess').style.display = 'inline';
     document.getElementById('submitGuess').style.display = 'inline';
 
+    
+
+    currentSectionIndex = 0;
+    sectionRound = 0;
+
+    showSectionPopup(); // Show the popup for the first section
+
+    const currentSection = getCurrentSection();
+    document.getElementById('roundInfo').innerHTML = `Section ${currentSectionIndex + 1}, Round ${sectionRound + 1}<br>Score: ${player.score}`;
+    document.getElementById('result').innerText = "Good Luck! Play Song to start the game!";
+
     currentPlayer = player; // Store the current player for the session
+
+
     updateScoreboard();
 }
 
@@ -286,6 +342,7 @@ function onAudioPause(event) {
 }
 
 function onAudioLoadedMetadata() {
+    const currentSection = getCurrentSection();
     const duration = audio.duration;
     const maxStartTime = duration - 15;
     const randomStartTime = Math.floor(Math.random() * (maxStartTime - 15)) + 15;
@@ -293,10 +350,10 @@ function onAudioLoadedMetadata() {
 
     progressInterval = setInterval(() => {
         currentTime += 0.1;
-        const progress = ((currentTime - randomStartTime) / gameConfig.songDuration) * 100; // Use config value
+        const progress = ((currentTime - randomStartTime) / currentSection.duration) * 100;
         document.getElementById('progressBar').style.width = `${progress}%`;
 
-        if (currentTime >= randomStartTime + gameConfig.songDuration) { // Use config value
+        if (currentTime >= randomStartTime + currentSection.duration) {
             clearInterval(progressInterval);
             document.getElementById('progressBar').style.width = '0%';
             audio.pause();
@@ -460,33 +517,41 @@ async function submitFinalScore() {
 
 
 function nextRound() {
-    console.log(`Player: ${currentPlayer.name} is starting round ${currentRound + 1}`);
+    sectionRound++;
+    if (sectionRound >= getCurrentSection().rounds) {
+        sectionRound = 0;
+        currentSectionIndex++;
+        if (currentSectionIndex < gameConfig.sections.length) {
+            showSectionPopup(); // Show the popup for the new section
+        }
+    }
 
-    document.getElementById('result').innerText = "Next Round! Play the song once you are ready!";
-    currentSong = null; // Reset current song for the next round
-    guessesLeft = 3;
-    document.getElementById('guessesLeft').innerText = `${guessesLeft} Guesses Left`;
-    playCount = 0; // Reset play count for the next round
-
-    if (currentRound >= maxRounds) {
+    if (currentSectionIndex >= gameConfig.sections.length) {
+        // Game over
         document.getElementById('gameOver').style.display = 'block';
         document.getElementById('roundInfo').style.display = 'none';
         document.getElementById('songControls').style.display = 'none';
-        document.getElementById('scoreboard').style.display = 'block'; // Show the leaderboard
+        document.getElementById('scoreboard').style.display = 'block';
         setTimeout(() => {
             gameOverSound.play();
-        }, 1000); // Delay before playing the game over sound
-
-        // Add player to the players array and save to Firebase only at game over screen
+        }, 1000);
         players.push(currentPlayer);
-        submitFinalScore(); // Submit the final score when the game is over
+        submitFinalScore();
     } else {
+        console.log(`Player: ${currentPlayer.name} is starting section ${currentSectionIndex + 1}, round ${sectionRound + 1}`);
+        document.getElementById('result').innerText = "Next Round! Play the song once you are ready!";
+        currentSong = null;
+        guessesLeft = 3;
+        document.getElementById('guessesLeft').innerText = `${guessesLeft} Guesses Left`;
+        playCount = 0;
+
         currentRound++;
-        document.getElementById('roundInfo').innerHTML = `Round ${currentRound}<br>Score: ${currentPlayer.score}`;
+        document.getElementById('roundInfo').innerHTML = `Section ${currentSectionIndex + 1}, Round ${sectionRound + 1}<br>Score: ${currentPlayer.score}`;
         document.getElementById('startSong').style.display = 'block';
-        document.getElementById('startSong').disabled = false; // Enable button for the next round
+        document.getElementById('startSong').disabled = false;
     }
-    document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar for the next round
+
+    document.getElementById('progressBar').style.width = '0%';
 }
 
 

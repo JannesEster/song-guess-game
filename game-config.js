@@ -1,5 +1,10 @@
 // game-config.js
 export const gameConfig = {
-    numberOfRounds: 10,
-    songDuration: 1 // in seconds
+    numberOfRounds: 16,
+    sections: [
+        { rounds: 4, difficulty: 'Easy', duration: 8 },
+        { rounds: 4, difficulty: 'Medium', duration: 4 },
+        { rounds: 4, difficulty: 'Medium', duration: 2 },
+        { rounds: 4, difficulty: 'Hard', duration: 1 }
+    ]
 };
