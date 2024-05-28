@@ -332,9 +332,7 @@ function onAudioPause(event) {
 
 function onAudioLoadedMetadata() {
     const currentSection = getCurrentSection();
-    const duration = audio.duration;
-    const maxStartTime = duration - 15;
-    const randomStartTime = Math.floor(Math.random() * (maxStartTime - 15)) + 15;
+    const randomStartTime = Math.floor(Math.random() * (audio.duration - currentSection.duration));
     let currentTime = randomStartTime;
 
     document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar
@@ -360,6 +358,7 @@ function onAudioLoadedMetadata() {
         console.error('Failed to start playback:', error);
     });
 }
+
 
 
 function startSong() {
@@ -449,21 +448,21 @@ function submitGuess() {
             result.innerText = 'Incorrect! Try again.';
             // Restart the song playback for the remaining duration
             setTimeout(() => {
-                const duration = audio.duration;
-                const maxStartTime = duration - 15;
-                const randomStartTime = Math.floor(Math.random() * (maxStartTime - 15)) + 15;
+                const currentSection = getCurrentSection();
+                const randomStartTime = Math.floor(Math.random() * (audio.duration - currentSection.duration));
                 audio.currentTime = randomStartTime;
 
                 // Reset and restart the progress bar
                 clearInterval(progressInterval);
                 document.getElementById('progressBar').style.width = '0%';
                 let currentTime = randomStartTime;
+                const duration = currentSection.duration;
                 progressInterval = setInterval(() => {
                     currentTime += 0.1;
-                    const progress = ((currentTime - randomStartTime) / gameConfig.songDuration) * 100;
+                    const progress = ((currentTime - randomStartTime) / duration) * 100;
                     document.getElementById('progressBar').style.width = `${progress}%`;
 
-                    if (currentTime >= randomStartTime + gameConfig.songDuration) {
+                    if (currentTime >= randomStartTime + duration) {
                         clearInterval(progressInterval);
                         document.getElementById('progressBar').style.width = '0%';
                         audio.pause();
@@ -492,6 +491,8 @@ function submitGuess() {
 
     updateScoreboard(); // Update the scoreboard after each guess
 }
+
+
 
 
 
