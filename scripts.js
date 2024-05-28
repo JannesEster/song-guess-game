@@ -637,14 +637,36 @@ document.getElementById('submitProblem').onclick = async function() {
 };
 
 async function saveIncorrectGuess(songName, userGuess, playerName) {
+    if (!userGuess.trim()) {
+        // If the user guess is empty or only whitespace, do not create an entry
+        return;
+    }
     try {
         const incorrectGuessesCollection = collection(db, 'incorrectGuesses');
-        await addDoc(incorrectGuessesCollection, {
-            songName: songName,
-            userGuess: userGuess,
-            playerName: playerName,
-            timestamp: new Date()
-        });
+        const playerDocRef = doc(incorrectGuessesCollection, playerName);
+
+        // Get the existing document
+        const playerDoc = await getDoc(playerDocRef);
+
+        let guessData = {};
+        if (playerDoc.exists()) {
+            guessData = playerDoc.data();
+        }
+
+        // Determine the next guess index
+        const nextIndex = Object.keys(guessData).length + 1;
+
+        // Add the new incorrect guess
+        const newGuessKeySong = `songName${nextIndex}`;
+        const newGuessKeyUser = `userGuess${nextIndex}`;
+    
+
+        guessData[newGuessKeySong] = songName;
+        guessData[newGuessKeyUser] = userGuess;
+    
+
+        // Save the document
+        await setDoc(playerDocRef, guessData);
         console.log('Incorrect guess saved successfully');
     } catch (error) {
         console.error('Error saving incorrect guess:', error);
