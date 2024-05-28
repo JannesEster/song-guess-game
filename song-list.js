@@ -42,7 +42,7 @@ export const songs = [
     { id: 40, name: "Cosmic Girl", artist: "Jamiroquai", year: 1996, difficulty: "Medium", url: "songs/Cosmic Girl.m4a" },
     { id: 41, name: "Crazy In Love", artist: "Beyonce feat. Jay-Z", year: 2003, difficulty: "Easy", url: "songs/Crazy In Love (DJ JOHNNIBOI EXTENDED MIX).mp3" },
     { id: 42, name: "Groove Is In the Heart", artist: "Deee-Lite", year: 1990, difficulty: "Easy", url: "songs/Deee-Lite - Groove Is In The Heart.mp3" },
-    { id: 43, name: "Disturbia", artist: "Rihanna", year: 2008, difficulty: "Easy", url: "songs/Disturbia.m4a" },
+    { id: 43, name: "Disturbia", artist: "Rihanna", year: 2008, difficulty: "Easy", url: "songs/Disturba.m4a" },
     { id: 44, name: "Don't You Worry Child", artist: "Swedish House Mafia", year: 2012, difficulty: "Medium", url: "songs/Don't You Worry Child (Radio Edit) [feat. John Martin].m4a" },
     { id: 45, name: "September", artist: "Earth Wind & Fire", year: 1999, difficulty: "Medium", url: "songs/Earth Wind and Fire - September 99 (phats an.mp3" },
     { id: 46, name: "Fantasy", artist: "Mariah Carey", year: 1995, difficulty: "Medium", url: "songs/Fantasy (Intro - Clean).mp3" },

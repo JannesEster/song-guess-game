@@ -169,22 +169,19 @@ function startSection() {
 
 function getRandomSong() {
     const currentSection = getCurrentSection();
-    const availableSongsForDifficulty = songs.filter(song => song.difficulty === currentSection.difficulty);
+    const availableSongsForDifficulty = songs.filter(song => song.difficulty === currentSection.difficulty && !playedSongs.includes(song.id));
 
     if (availableSongsForDifficulty.length === 0) {
-        availableSongs = [...songs.filter(song => song.difficulty === currentSection.difficulty)];
-        playedSongs = [];
+        throw new Error("No more songs available for the current section difficulty");
     }
 
     let song;
     do {
         const randomIndex = Math.floor(Math.random() * availableSongsForDifficulty.length);
         song = availableSongsForDifficulty[randomIndex];
-    } while (song === lastPlayedSong);
+    } while (playedSongs.includes(song.id));
 
-    availableSongs = availableSongs.filter(s => s !== song);
-    playedSongs.push(song);
-    lastPlayedSong = song;
+    playedSongs.push(song.id);
     return song;
 }
 
@@ -249,6 +246,7 @@ async function startGame() {
 
     const playerNameInput = document.getElementById('playerName');
     let playerName = playerNameInput.value.trim();
+    playedSongs = [];
 
     if (!playerName) {
         playerName = sessionStorage.getItem('currentPlayer');
@@ -385,6 +383,7 @@ function startSong() {
     }
 }
 
+
 // Update the saveScoreToLocalStorage function to include the player's name
 function saveScoreToLocalStorage() {
     const player = players[currentPlayerIndex];
@@ -411,8 +410,13 @@ function submitGuess() {
     const guessInput = document.getElementById('guess');
     const guess = guessInput.value;
     const result = document.getElementById('result');
-    const song = playedSongs[playedSongs.length - 1];
+    
+    if (!currentSong) {
+        result.innerText = 'No song is currently playing. Please start the song first.';
+        return;
+    }
 
+    const song = currentSong;
     guessInput.value = ''; // Clear the guess input box
 
     if (guess.toLowerCase() === song.name.toLowerCase()) {
@@ -473,6 +477,7 @@ function submitGuess() {
 
     updateScoreboard(); // Update the scoreboard after each guess
 }
+
 
 
 
