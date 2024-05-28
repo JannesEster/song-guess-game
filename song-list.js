@@ -66,7 +66,7 @@ export const songs = [
     { id: 64, name: "Fireball", artist: "Pitbull feat. John Ryan", year: 2014, difficulty: "Medium", url: "songs/Pitbull_ft._John_ryan-Fireball-DJ_Intro___DJ_Outro_1_Clean.mp3" },
     { id: 65, name: "Pony", artist: "Ginuwine", year: 1996, difficulty: "Medium", url: "songs/Pony (MMP Intro) (Clean).mp3" },
     { id: 66, name: "Praise You", artist: "Fatboy Slim", year: 1999, difficulty: "Medium", url: "songs/Praise You (Radio Edit).m4a" },
-    { id: 67, name: "Under Pressure - Remastered 2011", artist: "Queen", year: 1981, difficulty: "Easy", url: "songs/Queen - Under Pressure - Remastered 2011.mp3" },
+    { id: 67, name: "Under Pressure", artist: "Queen", year: 1981, difficulty: "Easy", url: "songs/Queen - Under Pressure - Remastered 2011.mp3" },
     { id: 68, name: "Rehab", artist: "Amy Winehouse", year: 2006, difficulty: "Easy", url: "songs/Rehab.m4a" },
     { id: 69, name: "Return Of The Mack", artist: "Mark Morrison", year: 1996, difficulty: "Medium", url: "songs/Return Of The Mack.mp3" },
     { id: 70, name: "Run to Paradise", artist: "Nick Skitz", year: 1988, difficulty: "Medium", url: "songs/Run To Paradise.mp3" },
