@@ -429,6 +429,9 @@ function submitGuess() {
             nextRound();
         }, 2000); // Move to the next round after an additional 2 seconds
     } else {
+        // Save the incorrect guess to Firebase
+        saveIncorrectGuess(song.name, guess, currentPlayer.name);
+
         incorrectGuessCount++;
         guessesLeft--; // Decrement guesses left
         document.getElementById('guessesLeft').innerText = `${guessesLeft} ${guessesLeft === 1 ? 'Guess' : 'Guesses'} Left`;
@@ -477,6 +480,7 @@ function submitGuess() {
 
     updateScoreboard(); // Update the scoreboard after each guess
 }
+
 
 
 
@@ -617,3 +621,19 @@ document.getElementById('submitProblem').onclick = async function() {
         alert('Failed to report the problem. Please try again.');
     }
 };
+
+async function saveIncorrectGuess(songName, userGuess, playerName) {
+    try {
+        const incorrectGuessesCollection = collection(db, 'incorrectGuesses');
+        await addDoc(incorrectGuessesCollection, {
+            songName: songName,
+            userGuess: userGuess,
+            playerName: playerName,
+            timestamp: new Date()
+        });
+        console.log('Incorrect guess saved successfully');
+    } catch (error) {
+        console.error('Error saving incorrect guess:', error);
+    }
+}
+
