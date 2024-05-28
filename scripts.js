@@ -195,9 +195,11 @@ async function fetchPlayerFromFirebase(playerName) {
 
     if (playerDoc.exists()) {
         const playerData = playerDoc.data();
-        // Reset score to zero if the game has finished
-        playerData.score = 0;
-        playerData.finished = false; // Reset finished to false for a new game
+        // If the player has finished the game, keep highestScore and reset score
+        if (playerData.finished) {
+            playerData.score = 0;
+            //playerData.finished = false; // Reset finished to false for a new game
+        }
         return playerData;
     } else {
         // If the player doesn't exist in Firebase, create a new player entry
@@ -206,6 +208,7 @@ async function fetchPlayerFromFirebase(playerName) {
         return newPlayer;
     }
 }
+
 
 let currentSectionIndex = 0;
 let sectionRound = 0;
@@ -242,9 +245,6 @@ document.getElementById('startSectionButton').onclick = function() {
 };
 
 async function startGame() {
-    // existing code...
-
-
     localStorage.clear(); // Clear local storage before starting a new game
 
     const playerNameInput = document.getElementById('playerName');
@@ -266,6 +266,7 @@ async function startGame() {
 
     const player = await fetchPlayerFromFirebase(playerName); // Fetch player data from Firebase
     player.roundsPlayed += 1; // Increment rounds played
+
     await setDoc(doc(collection(db, 'players'), playerName), player); // Update the database
 
     players = []; // Clear the players array to ensure no players are in it at the start of the game
@@ -309,22 +310,12 @@ async function startGame() {
     document.getElementById('guess').style.display = 'inline';
     document.getElementById('submitGuess').style.display = 'inline';
 
-    
-
-    currentSectionIndex = 0;
-    sectionRound = 0;
+    currentPlayer = player; // Store the current player for the session
+    updateScoreboard();
 
     showSectionPopup(); // Show the popup for the first section
-
-    const currentSection = getCurrentSection();
-    document.getElementById('roundInfo').innerHTML = `Section ${currentSectionIndex + 1}, Round ${sectionRound + 1}<br>Score: ${player.score}`;
-    document.getElementById('result').innerText = "Good Luck! Play Song to start the game!";
-
-    currentPlayer = player; // Store the current player for the session
-
-
-    updateScoreboard();
 }
+
 
 
 
@@ -516,6 +507,7 @@ async function submitFinalScore() {
 
 
 
+
 function nextRound() {
     sectionRound++;
     if (sectionRound >= getCurrentSection().rounds) {
@@ -553,6 +545,7 @@ function nextRound() {
 
     document.getElementById('progressBar').style.width = '0%';
 }
+
 
 
 
