@@ -337,6 +337,8 @@ function onAudioLoadedMetadata() {
     const randomStartTime = Math.floor(Math.random() * (maxStartTime - 15)) + 15;
     let currentTime = randomStartTime;
 
+    document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar
+
     progressInterval = setInterval(() => {
         currentTime += 0.1;
         const progress = ((currentTime - randomStartTime) / currentSection.duration) * 100;
@@ -358,6 +360,7 @@ function onAudioLoadedMetadata() {
         console.error('Failed to start playback:', error);
     });
 }
+
 
 function startSong() {
     if (isPlaying || playCount >= maxPlaysPerRound) return;
@@ -382,6 +385,7 @@ function startSong() {
         }, gameConfig.songDuration * 1000);
     }
 }
+
 
 
 // Update the saveScoreToLocalStorage function to include the player's name
@@ -443,29 +447,37 @@ function submitGuess() {
             }, 2000); // Move to the next round after an additional 2 seconds
         } else {
             result.innerText = 'Incorrect! Try again.';
+            // Restart the song playback for the remaining duration
             setTimeout(() => {
                 const duration = audio.duration;
                 const maxStartTime = duration - 15;
                 const randomStartTime = Math.floor(Math.random() * (maxStartTime - 15)) + 15;
                 audio.currentTime = randomStartTime;
-                audio.play().then(() => {
-                    progressInterval = setInterval(() => {
-                        const currentTime = audio.currentTime;
-                        const progress = ((currentTime - randomStartTime) / gameConfig.songDuration) * 100;
-                        document.getElementById('progressBar').style.width = `${progress}%`;
 
-                        if (currentTime >= randomStartTime + gameConfig.songDuration) {
-                            clearInterval(progressInterval);
-                            document.getElementById('progressBar').style.width = '0%';
-                            audio.pause();
-                            isPlaying = false;
-                            if (playCount < maxPlaysPerRound) {
-                                setTimeout(() => {
-                                    document.getElementById('startSong').disabled = false;
-                                }, 2000); // Enable button after 2 seconds
-                            }
+                // Reset and restart the progress bar
+                clearInterval(progressInterval);
+                document.getElementById('progressBar').style.width = '0%';
+                let currentTime = randomStartTime;
+                progressInterval = setInterval(() => {
+                    currentTime += 0.1;
+                    const progress = ((currentTime - randomStartTime) / gameConfig.songDuration) * 100;
+                    document.getElementById('progressBar').style.width = `${progress}%`;
+
+                    if (currentTime >= randomStartTime + gameConfig.songDuration) {
+                        clearInterval(progressInterval);
+                        document.getElementById('progressBar').style.width = '0%';
+                        audio.pause();
+                        isPlaying = false;
+                        if (playCount < maxPlaysPerRound) {
+                            setTimeout(() => {
+                                document.getElementById('startSong').disabled = false;
+                            }, 2000); // Enable button after 2 seconds
                         }
-                    }, 100);
+                    }
+                }, 100);
+
+                audio.play().then(() => {
+                    console.log('Song restarted successfully');
                 }).catch(error => {
                     console.error('Failed to start playback:', error);
                 });
@@ -480,6 +492,7 @@ function submitGuess() {
 
     updateScoreboard(); // Update the scoreboard after each guess
 }
+
 
 
 
