@@ -265,6 +265,14 @@ document.getElementById('startSectionButton').onclick = function() {
 async function startGame() {
     localStorage.clear(); // Clear local storage before starting a new game
 
+    const preloadContainer = document.getElementById('preloadContainer');
+    songs.forEach(song => {
+        const audio = document.createElement('audio');
+        audio.src = song.url;
+        audio.preload = 'auto';
+        preloadContainer.appendChild(audio);
+    });
+
     const playerNameInput = document.getElementById('playerName');
     let playerName = playerNameInput.value.trim();
     playedSongs = [];
@@ -391,6 +399,7 @@ function startSong() {
         currentSong = getRandomSong();
         audio.src = currentSong.url;
         audio.dataset.id = currentSong.id;
+        audio.load();  // Ensure the audio file is loaded
     }
     document.getElementById('startSong').disabled = true;
     if (audio.src) {
@@ -405,6 +414,7 @@ function startSong() {
         }, gameConfig.songDuration * 1000);
     }
 }
+
 
 
 
