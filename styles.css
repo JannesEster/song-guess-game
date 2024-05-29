@@ -301,3 +301,13 @@ textarea {
 #sectionPopupMessage {
     margin-bottom: 20px;
 }
+#sectionPopupGuide {
+    margin-top: 10px;
+    font-size: 1em;
+    color: #666;
+}
+#sectionNotes {
+    margin-top: 10px;
+    font-size: 1em;
+    color: #666;
+}

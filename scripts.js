@@ -211,10 +211,24 @@ let currentSectionIndex = 0;
 let sectionRound = 0;
 
 const sectionMessages = [
-    "Let's start nice and easy",
+    "Let's start nice and easy!" ,
     "Let's make it slightly harder!",
-    "It's going to get hard now",
-    "You now only have 1 second to hear the song"
+    "It's going to get hard now!",
+    "The Boss Level!"
+];
+
+const sectionGuides = [
+    "You have a total of 16 rounds and must complete, or skip through all 16 to be placed on the leaderboard!",
+    "You now have 4 seconds to listen to each song!",
+    "You now have 2 seconds to listen to each song!",
+    "You now only have 1 seconds to listen to each song!"
+];
+
+const sectionNotes = [
+    "This is the easy section! 4 rounds with 8 seconds to listen to each song! Good Luck!",
+    "Here comes the next 4 rounds! Good Luck!",
+    "An incorrect guess will give you a extra listen, use this wisely!",
+    "This is the hardest section! Feel free to skip to the end if you find it too hard :)"
 ];
 
 function getCurrentSection() {
@@ -223,7 +237,11 @@ function getCurrentSection() {
 
 function showSectionPopup() {
     const message = sectionMessages[currentSectionIndex];
+    const guide = sectionGuides[currentSectionIndex];
+    const note = sectionNotes[currentSectionIndex];
     document.getElementById('sectionPopupMessage').innerText = message;
+    document.getElementById('sectionPopupGuide').innerText = guide;
+    document.getElementById('sectionNotes').innerText = note;  
     document.getElementById('sectionPopup').style.display = 'block';
 }
 
@@ -240,6 +258,9 @@ document.getElementById('startSectionButton').onclick = function() {
     closeSectionPopup();
     startSection();
 };
+
+
+
 
 async function startGame() {
     localStorage.clear(); // Clear local storage before starting a new game
