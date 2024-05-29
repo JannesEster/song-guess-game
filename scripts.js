@@ -449,6 +449,14 @@ function submitGuess() {
         correctSound.play();
         incorrectGuessCount = 0;
         document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar
+
+         // Trigger confetti explosion
+         confetti({
+            particleCount: 150,
+            spread: 90,
+            origin: { y: 0.6 }
+        });
+
         setTimeout(() => {
             nextRound();
         }, 2000); // Move to the next round after an additional 2 seconds
