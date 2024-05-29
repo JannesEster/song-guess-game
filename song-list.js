@@ -57,7 +57,7 @@ export const songs = [
     { id: 55, name: "Insomnia", artist: "Faithless", year: 1995, difficulty: "Medium", url: "songs/Insomnia.m4a" },
     { id: 56, name: "Macarena", artist: "Los Del Rio", year: 1993, difficulty: "Medium", url: "songs/Los Del Rio - Macarena.mp3" },
     { id: 57, name: "Love Generation", artist: "Bob Sinclar", year: 2005, difficulty: "Medium", url: "songs/Love Generation.mp3" },
-    { id: 58, name: "MMM Bop", artist: "Hanson", year: 1997, difficulty: "Medium", url: "songs/Mmbop (DJ JAY MMP Intro).mp3" },
+    { id: 58, name: "MMMBop", artist: "Hanson", year: 1997, difficulty: "Medium", url: "songs/Mmbop (DJ JAY MMP Intro).mp3" },
     { id: 59, name: "Mr Brightside", artist: "The Killers", year: 2003, difficulty: "Easy", url: "songs/Mr Brightside.mp3" },
     { id: 60, name: "My Delirium", artist: "Ladyhawke", year: 2008, difficulty: "Medium", url: "songs/My Delirium.m4a" },
     { id: 61, name: "Never Gonna Give You Up", artist: "Rick Astley", year: 1987, difficulty: "Easy", url: "songs/Never Gonna Give You Up.mp3" },

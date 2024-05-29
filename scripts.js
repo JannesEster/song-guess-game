@@ -426,13 +426,30 @@ function loadScoreFromLocalStorage(playerName) {
     return { name: playerName, score: 0 };
 }
 
+// Function to generate hint with first character of each word or first two characters of a single word
+function generateHint(songName) {
+    const words = songName.split(' ');
+    let hint = '';
+
+    if (words.length === 1) {
+        hint = `${words[0].substring(0, 2)}${'*'.repeat(words[0].length - 2)}`;
+    } else {
+        for (let word of words) {
+            hint += `${word.charAt(0)}${'*'.repeat(word.length - 1)} `;
+        }
+        hint = hint.trim(); // Remove trailing space
+    }
+
+    return hint;
+}
+
 function submitGuess() {
     clearInterval(progressInterval);
     audio.pause();
     isPlaying = false;
 
     const guessInput = document.getElementById('guess');
-    const guess = guessInput.value;
+    const guess = guessInput.value.trim(); // Trim the whitespace from the guess
     const result = document.getElementById('result');
     
     if (!currentSong) {
@@ -443,15 +460,15 @@ function submitGuess() {
     const song = currentSong;
     guessInput.value = ''; // Clear the guess input box
 
-    if (guess.toLowerCase().trim() === song.name.toLowerCase().trim()) { // Trim the whitespace from the song name
+    if (guess.toLowerCase() === song.name.toLowerCase().trim()) { // Trim the whitespace from the song name
         currentPlayer.score += 1; // Increment score
         result.innerText = `Correct! The song is "${song.name}"`;
         correctSound.play();
         incorrectGuessCount = 0;
         document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar
 
-         // Trigger confetti explosion
-         confetti({
+        // Trigger confetti explosion
+        confetti({
             particleCount: 150,
             spread: 90,
             origin: { y: 0.6 }
@@ -466,9 +483,50 @@ function submitGuess() {
 
         incorrectGuessCount++;
         guessesLeft--; // Decrement guesses left
+        if (guessesLeft < 0) guessesLeft = 0; // Ensure guesses left do not go below 0
+
         document.getElementById('guessesLeft').innerText = `${guessesLeft} ${guessesLeft === 1 ? 'Guess' : 'Guesses'} Left`;
         incorrectSound.play();
-        if (incorrectGuessCount >= 3) {
+
+        if (incorrectGuessCount >= 2 && gameConfig.enableHints && guessesLeft > 0) {
+            const hint = generateHint(song.name);
+            result.innerText = `Hint! The song name is "${hint}".`;
+            // Restart the song playback for the remaining duration
+            setTimeout(() => {
+                const currentSection = getCurrentSection();
+                const randomStartTime = Math.floor(Math.random() * (audio.duration - currentSection.duration));
+                audio.currentTime = randomStartTime;
+
+                // Reset and restart the progress bar
+                clearInterval(progressInterval);
+                document.getElementById('progressBar').style.width = '0%';
+                let currentTime = randomStartTime;
+                const duration = currentSection.duration;
+                progressInterval = setInterval(() => {
+                    currentTime += 0.1;
+                    const progress = ((currentTime - randomStartTime) / duration) * 100;
+                    document.getElementById('progressBar').style.width = `${progress}%`;
+
+                    if (currentTime >= randomStartTime + duration) {
+                        clearInterval(progressInterval);
+                        document.getElementById('progressBar').style.width = '0%';
+                        audio.pause();
+                        isPlaying = false;
+                        if (playCount < maxPlaysPerRound) {
+                            setTimeout(() => {
+                                document.getElementById('startSong').disabled = false;
+                            }, 2000); // Enable button after 2 seconds
+                        }
+                    }
+                }, 100);
+
+                audio.play().then(() => {
+                    console.log('Song restarted successfully');
+                }).catch(error => {
+                    console.error('Failed to start playback:', error);
+                });
+            }, 2000);
+        } else if (guessesLeft === 0) {
             incorrectGuessCount = 0;
             setTimeout(() => {
                 nextRound();
