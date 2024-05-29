@@ -443,7 +443,7 @@ function submitGuess() {
     const song = currentSong;
     guessInput.value = ''; // Clear the guess input box
 
-    if (guess.toLowerCase() === song.name.toLowerCase()) {
+    if (guess.toLowerCase().trim() === song.name.toLowerCase().trim()) { // Trim the whitespace from the song name
         currentPlayer.score += 1; // Increment score
         result.innerText = `Correct! The song is "${song.name}"`;
         correctSound.play();
