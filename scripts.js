@@ -618,6 +618,29 @@ async function submitFinalScore() {
             }
         });
         console.log("Final score submission successful");
+
+        // URL encode the player name
+        const encodedName = encodeURIComponent(player.name);
+        
+        //  this is future code for when I add player email      const encodedEmail = encodeURIComponent(player.email || '');
+        //   this is future code for when we have player phone     const encodedPhone = encodeURIComponent(player.phone || '');
+        const score = player.score;
+        const webhookUrl = `https://hook.eu1.make.com/v3fyie85d7h26qelrwc39hkr08vv93t6?name=${encodedName}&score=${score}`;
+
+        // this is future code for when we have both email and phone      const webhookUrl = `https://hook.eu1.make.com/v3fyie85d7h26qelrwc39hkr08vv93t6?name=${encodedName}&score=${score}&email=${encodedEmail}&phone=${encodedPhone}`;
+
+
+        // Send the player name and score to the webhook URL
+        const response = await fetch(webhookUrl, {
+            method: 'GET'
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to send data to webhook: ${response.statusText}`);
+        }
+
+        console.log("Data sent to webhook successfully");
+
     } catch (e) {
         console.error("Final score submission failed: ", e);
         alert("Failed to submit the final score. Please try again.");
