@@ -1,28 +1,46 @@
+#gameLogo {
+    width: 300px; /* Adjust the size as needed */
+    height: auto;
+    cursor: pointer;
+    padding-top: 0;
+    display: block;
+    
+}
+
+#linksBody {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #0c1d24;
+    margin: 0;
+    padding: 2%;
+}
+
 body {
     font-family: Arial, sans-serif;
     text-align: center;
     background-color: #f0f0f0;
     margin: 0;
-    padding: 0;
+    padding: 2%;
 }
 
 #initialContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 100px;
+    
 }
 
 #initialTitle {
-    font-size: 2.5em;
-    color: #333;
-    margin-bottom: 10px;
+    font-size: 2em;
+    color: #0c1d24;
+    margin-top: 2%;
+    margin-bottom: 0px;
 }
 
 #subTitle {
-    font-size: 1.5em;
+    font-size: 2em;
     color: #555;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
 #testVolume {

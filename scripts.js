@@ -111,6 +111,15 @@ async function resetScoreboard() {
     }
 }
 
+document.getElementById('gameLogo').onclick = function() {
+    const password = prompt("Enter the password");
+    if (password === "CDJexpo") {
+        location.href="links.html"
+    } else {
+        location.href="https://www.completedj.com.au/"    
+    }
+};
+
 document.getElementById('resetLeaderboard').onclick = function() {
     const password = prompt("Enter the password to reset the leaderboard:");
     if (password === "gamemaster") {
@@ -621,7 +630,7 @@ async function submitFinalScore() {
 
         // URL encode the player name
         const encodedName = encodeURIComponent(player.name);
-        
+
         //  this is future code for when I add player email      const encodedEmail = encodeURIComponent(player.email || '');
         //   this is future code for when we have player phone     const encodedPhone = encodeURIComponent(player.phone || '');
         const score = player.score;
