@@ -152,6 +152,7 @@ window.onload = function() {
     // Preload songs
     const preloadContainer = document.getElementById('preloadContainer');
     let loadedSongsCount = 0;
+    startSongButton.style.display = 'none';
 
     songs.forEach(song => {
         const audio = document.createElement('audio');
