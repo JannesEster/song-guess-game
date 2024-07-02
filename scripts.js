@@ -131,6 +131,8 @@ document.getElementById('resetLeaderboard').onclick = function() {
     }
 };
 
+const songCache = {};
+
 window.onload = function() {
     const volume = document.getElementById('volumeSlider').value;
     const audioElements = ['song', 'correctSound', 'incorrectSound', 'gameOverSound', 'testSound'];
@@ -149,55 +151,9 @@ window.onload = function() {
     const loadingContainer = document.getElementById('loadingContainer');
     const startSongButton = document.getElementById('startSong');
 
-    // Check if songs are already in local storage
-    let songsLoaded = localStorage.getItem('songsLoaded');
-    if (songsLoaded) {
-        // Songs are already in local storage, no need to preload
-        loadingContainer.style.display = 'none';
-        startSongButton.style.display = 'block';
-        startSongButton.disabled = false;
-        console.log("Songs loaded from local storage.");
-    } else {
-        // Sort songs by difficulty (Easy first)
-        const sortedSongs = songs.slice().sort((a, b) => {
-            const difficultyOrder = { Easy: 1, Medium: 2, Hard: 3 };
-            return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
-        });
-
-        // Preload songs
-        const preloadContainer = document.getElementById('preloadContainer');
-        let loadedSongsCount = 0;
-        const minSongsToLoad = Math.min(13, sortedSongs.length); // Minimum number of songs to load before enabling start
-
-        sortedSongs.forEach(song => {
-            const audio = document.createElement('audio');
-            audio.src = song.url;
-            audio.preload = 'auto';
-            preloadContainer.appendChild(audio);
-
-            audio.addEventListener('canplaythrough', () => {
-                loadedSongsCount++;
-                if (loadedSongsCount === minSongsToLoad) {
-                    // Minimum required songs are loaded, enable the "Play Song" button
-                    startSongButton.style.display = 'block';
-                    startSongButton.disabled = false;
-                    console.log("Minimum required songs are loaded, you can start the game.");
-
-                    // Continue loading the rest of the songs in the background
-                    if (loadedSongsCount === sortedSongs.length) {
-                        localStorage.setItem('songsLoaded', true);
-                        loadingContainer.style.display = 'none';
-                        console.log("All songs are loaded and saved to local storage.");
-                    }
-                } else if (loadedSongsCount === sortedSongs.length) {
-                    // All songs are loaded
-                    localStorage.setItem('songsLoaded', true);
-                    loadingContainer.style.display = 'none';
-                    console.log("All songs are loaded and saved to local storage.");
-                }
-            }, { once: true });
-        });
-    }
+    loadingContainer.style.display = 'none';
+    startSongButton.style.display = 'block';
+    startSongButton.disabled = false;
 };
 
 document.getElementById('startGame').onclick = startGame;
@@ -404,7 +360,6 @@ async function startGame() {
 
 
 
-
 function onAudioPlaying() {
     console.log('Song is playing');
 }
@@ -450,24 +405,47 @@ function startSong() {
 
     clearInterval(progressInterval);
     document.getElementById('result').innerText = '';
+
     if (!currentSong) {
         currentSong = getRandomSong();
-        audio.src = currentSong.url;
-        audio.dataset.id = currentSong.id;
-        audio.load();  // Ensure the audio file is loaded
     }
-    document.getElementById('startSong').disabled = true;
-    if (audio.src) {
-        audio.load();
-    }
-    isPlaying = true;
-    playCount++;
 
-    if (playCount < maxPlaysPerRound) {
-        setTimeout(() => {
-            document.getElementById('startSong').disabled = false;
-        }, gameConfig.songDuration * 1000);
+    if (!songCache[currentSong.id]) {
+        // Show loading animation
+        document.getElementById('loadingContainer').style.display = 'flex';
+        document.getElementById('startSong').style.display = 'none';
+
+        // Load the song
+        const audio = new Audio(currentSong.url);
+        audio.preload = 'auto';
+        audio.addEventListener('canplaythrough', () => {
+            songCache[currentSong.id] = audio;
+            playCurrentSong();
+        }, { once: true });
+
+        // Append audio element to preload container to cache it
+        const preloadContainer = document.getElementById('preloadContainer');
+        preloadContainer.appendChild(audio);
+    } else {
+        playCurrentSong();
     }
+}
+
+function playCurrentSong() {
+    document.getElementById('loadingContainer').style.display = 'none';
+    document.getElementById('startSong').style.display = 'block';
+    document.getElementById('startSong').disabled = true;
+    
+    audio = songCache[currentSong.id];
+    audio.currentTime = 0;
+    audio.play().then(() => {
+        console.log('Song started successfully');
+        isPlaying = true;
+        playCount++;
+        document.getElementById('startSong').disabled = false;
+    }).catch(error => {
+        console.error('Failed to start playback:', error);
+    });
 }
 
 
