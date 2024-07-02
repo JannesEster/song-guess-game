@@ -158,11 +158,18 @@ window.onload = function() {
         startSongButton.disabled = false;
         console.log("Songs loaded from local storage.");
     } else {
+        // Sort songs by difficulty (Easy first)
+        const sortedSongs = songs.slice().sort((a, b) => {
+            const difficultyOrder = { Easy: 1, Medium: 2, Hard: 3 };
+            return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+        });
+
         // Preload songs
         const preloadContainer = document.getElementById('preloadContainer');
         let loadedSongsCount = 0;
+        const minSongsToLoad = Math.min(13, sortedSongs.length); // Minimum number of songs to load before enabling start
 
-        songs.forEach(song => {
+        sortedSongs.forEach(song => {
             const audio = document.createElement('audio');
             audio.src = song.url;
             audio.preload = 'auto';
@@ -170,12 +177,22 @@ window.onload = function() {
 
             audio.addEventListener('canplaythrough', () => {
                 loadedSongsCount++;
-                if (loadedSongsCount === songs.length) {
-                    // All songs are loaded, save to local storage and enable the "Play Song" button
-                    localStorage.setItem('songsLoaded', true);
-                    loadingContainer.style.display = 'none';
+                if (loadedSongsCount === minSongsToLoad) {
+                    // Minimum required songs are loaded, enable the "Play Song" button
                     startSongButton.style.display = 'block';
                     startSongButton.disabled = false;
+                    console.log("Minimum required songs are loaded, you can start the game.");
+
+                    // Continue loading the rest of the songs in the background
+                    if (loadedSongsCount === sortedSongs.length) {
+                        localStorage.setItem('songsLoaded', true);
+                        loadingContainer.style.display = 'none';
+                        console.log("All songs are loaded and saved to local storage.");
+                    }
+                } else if (loadedSongsCount === sortedSongs.length) {
+                    // All songs are loaded
+                    localStorage.setItem('songsLoaded', true);
+                    loadingContainer.style.display = 'none';
                     console.log("All songs are loaded and saved to local storage.");
                 }
             }, { once: true });
