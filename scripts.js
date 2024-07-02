@@ -142,8 +142,17 @@ window.onload = function() {
     });
 
     loadScoreboard();
+    
     document.getElementById('scoreboard').style.display = 'block';
     document.getElementById('resetLeaderboard').style.display = 'block';
+     //preload songs
+     const preloadContainer = document.getElementById('preloadContainer');
+     songs.forEach(song => {
+         const audio = document.createElement('audio');
+         audio.src = song.url;
+         audio.preload = 'auto';
+         preloadContainer.appendChild(audio);
+     });
 };
 
 document.getElementById('startGame').onclick = startGame;
@@ -276,13 +285,6 @@ document.getElementById('startSectionButton').onclick = function() {
 async function startGame() {
     localStorage.clear(); // Clear local storage before starting a new game
 
-    const preloadContainer = document.getElementById('preloadContainer');
-    songs.forEach(song => {
-        const audio = document.createElement('audio');
-        audio.src = song.url;
-        audio.preload = 'auto';
-        preloadContainer.appendChild(audio);
-    });
 
     const playerNameInput = document.getElementById('playerName');
     let playerName = playerNameInput.value.trim();
