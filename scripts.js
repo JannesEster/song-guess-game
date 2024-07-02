@@ -472,7 +472,13 @@ function submitGuess() {
     const guessInput = document.getElementById('guess');
     const guess = guessInput.value.trim(); // Trim the whitespace from the guess
     const result = document.getElementById('result');
-    
+
+    // Check if the input box is empty
+    if (!guess) {
+        result.innerText = 'Please enter the song name before submitting.';
+        return;
+    }
+
     if (!currentSong) {
         result.innerText = 'No song is currently playing. Please start the song first.';
         return;
@@ -549,6 +555,7 @@ function submitGuess() {
             }, 2000);
         } else if (guessesLeft === 0) {
             incorrectGuessCount = 0;
+            result.innerText = `Incorrect! The correct song was "${song.name}".`;
             setTimeout(() => {
                 nextRound();
             }, 2000); // Move to the next round after an additional 2 seconds
@@ -599,6 +606,8 @@ function submitGuess() {
 
     updateScoreboard(); // Update the scoreboard after each guess
 }
+
+
 
 document.getElementById('closeEmailPopup').onclick = function() {
     document.getElementById('emailPopup').style.display = 'none';
