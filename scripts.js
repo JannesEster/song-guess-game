@@ -399,7 +399,15 @@ function onAudioLoadedMetadata() {
     });
 }
 
-
+function updatePlaysLeft() {
+    const playsLeftElement = document.getElementById('playsLeft');
+    const playsLeft = maxPlaysPerRound - playCount;
+    if (playsLeft === 0) {
+        playsLeftElement.style.display = 'none';
+    } else {
+        playsLeftElement.innerText = `${playsLeft} ${playsLeft === 1 ? 'Play' : 'Plays'} Left`;
+    }
+}
 
 function startSong() {
     if (isPlaying || playCount >= maxPlaysPerRound) return;
@@ -418,7 +426,7 @@ function startSong() {
     }
     isPlaying = true;
     playCount++;
-    document.getElementById('playsLeft').innerText = `${maxPlaysPerRound - playCount} Plays Left`; // Update plays left
+    updatePlaysLeft(); // Update plays left
 
     if (playCount < maxPlaysPerRound) {
         setTimeout(() => {
