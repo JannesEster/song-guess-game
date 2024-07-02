@@ -142,17 +142,32 @@ window.onload = function() {
     });
 
     loadScoreboard();
-    
     document.getElementById('scoreboard').style.display = 'block';
     document.getElementById('resetLeaderboard').style.display = 'block';
-     //preload songs
-     const preloadContainer = document.getElementById('preloadContainer');
-     songs.forEach(song => {
-         const audio = document.createElement('audio');
-         audio.src = song.url;
-         audio.preload = 'auto';
-         preloadContainer.appendChild(audio);
-     });
+
+    // Disable the "Play Song" button initially
+    const startSongButton = document.getElementById('startSong');
+    startSongButton.disabled = true;
+
+    // Preload songs
+    const preloadContainer = document.getElementById('preloadContainer');
+    let loadedSongsCount = 0;
+
+    songs.forEach(song => {
+        const audio = document.createElement('audio');
+        audio.src = song.url;
+        audio.preload = 'auto';
+        preloadContainer.appendChild(audio);
+
+        audio.addEventListener('canplaythrough', () => {
+            loadedSongsCount++;
+            if (loadedSongsCount === songs.length) {
+                // All songs are loaded, enable the "Play Song" button
+                startSongButton.disabled = false;
+                console.log("All songs are loaded.");
+            }
+        }, { once: true });
+    });
 };
 
 document.getElementById('startGame').onclick = startGame;
