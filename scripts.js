@@ -3,6 +3,8 @@ import { collection, getDocs, addDoc, deleteDoc, doc, runTransaction, onSnapshot
 import { songs } from './song-list.js';
 import { gameConfig } from './game-config.js';
 
+
+
 document.getElementById('testVolume').onclick = function() {
     const testSound = document.getElementById('testSound');
     testSound.play();
@@ -598,7 +600,40 @@ function submitGuess() {
     updateScoreboard(); // Update the scoreboard after each guess
 }
 
+document.getElementById('closeEmailPopup').onclick = function() {
+    document.getElementById('emailPopup').style.display = 'none';
+};
 
+document.getElementById('submitEmail').onclick = async function() {
+    const email = document.getElementById('playerEmail').value.trim();
+    if (email) {
+        const player = currentPlayer;
+        player.email = email;
+        await setDoc(doc(collection(db, 'players'), player.name), player); // Update the database with the email
+        document.getElementById('emailPopup').style.display = 'none';
+
+        // URL encode the email address
+        const encodedEmail = encodeURIComponent(player.email);
+        const encodedName = encodeURIComponent(player.name);
+        const score = player.score;
+
+        // Update the webhook URL to include the email
+        const webhookUrl = `https://hook.eu1.make.com/v3fyie85d7h26qelrwc39hkr08vv93t6?name=${encodedName}&score=${score}&email=${encodedEmail}`;
+
+        // Send the player name, score, and email to the webhook URL
+        const response = await fetch(webhookUrl, {
+            method: 'GET'
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to send data to webhook: ${response.statusText}`);
+        }
+
+        console.log("Data sent to webhook successfully");
+    } else {
+        alert('Please enter a valid email address.');
+    }
+};
 
 
 
@@ -628,28 +663,8 @@ async function submitFinalScore() {
         });
         console.log("Final score submission successful");
 
-        // URL encode the player name
-        const encodedName = encodeURIComponent(player.name);
-
-        //  this is future code for when I add player email      const encodedEmail = encodeURIComponent(player.email || '');
-        //   this is future code for when we have player phone     const encodedPhone = encodeURIComponent(player.phone || '');
-        const score = player.score;
-        const webhookUrl = `https://hook.eu1.make.com/v3fyie85d7h26qelrwc39hkr08vv93t6?name=${encodedName}&score=${score}`;
-
-        // this is future code for when we have both email and phone      const webhookUrl = `https://hook.eu1.make.com/v3fyie85d7h26qelrwc39hkr08vv93t6?name=${encodedName}&score=${score}&email=${encodedEmail}&phone=${encodedPhone}`;
-
-
-        // Send the player name and score to the webhook URL
-        const response = await fetch(webhookUrl, {
-            method: 'GET'
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to send data to webhook: ${response.statusText}`);
-        }
-
-        console.log("Data sent to webhook successfully");
-
+        // Show the email popup
+        document.getElementById('emailPopup').style.display = 'block';
     } catch (e) {
         console.error("Final score submission failed: ", e);
         alert("Failed to submit the final score. Please try again.");

@@ -49,6 +49,14 @@
             <h1 id="gameOverText">Game Over</h1>
             <button id="newGame" class="button">New Game</button>
         </div>
+        <div id="emailPopup" class="popup">
+            <div class="popup-content">
+                <span class="close" id="closeEmailPopup">&times;</span>
+                <h2>Enter email address to submit your score!</h2>
+                <input type="email" id="playerEmail" placeholder="Enter your email">
+                <button id="submitEmail" class="button">Submit</button>
+            </div>
+        </div>
     </div>
     
 
@@ -64,6 +72,8 @@
 <audio id="incorrectSound" src="sounds/Incorrect.MP3" preload="auto"></audio>
 <audio id="gameOverSound" src="sounds/End(FIxed).MP3" preload="auto"></audio>
 <audio id="testSound" src="sounds/TestAudio.MP3" preload="auto"></audio>
+
+
 
     <script type="module" src="song-list.js"></script>
     <script type="module" src="firebase-config.js"></script>
