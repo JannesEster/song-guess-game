@@ -145,9 +145,9 @@ window.onload = function() {
     document.getElementById('scoreboard').style.display = 'block';
     document.getElementById('resetLeaderboard').style.display = 'block';
 
-    // Disable the "Play Song" button initially
+    // Show the loading animation and text
+    const loadingContainer = document.getElementById('loadingContainer');
     const startSongButton = document.getElementById('startSong');
-    startSongButton.disabled = true;
 
     // Preload songs
     const preloadContainer = document.getElementById('preloadContainer');
@@ -162,7 +162,9 @@ window.onload = function() {
         audio.addEventListener('canplaythrough', () => {
             loadedSongsCount++;
             if (loadedSongsCount === songs.length) {
-                // All songs are loaded, enable the "Play Song" button
+                // All songs are loaded, hide the loading animation and show the "Play Song" button
+                loadingContainer.style.display = 'none';
+                startSongButton.style.display = 'block';
                 startSongButton.disabled = false;
                 console.log("All songs are loaded.");
             }
