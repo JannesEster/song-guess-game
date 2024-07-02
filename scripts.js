@@ -149,28 +149,38 @@ window.onload = function() {
     const loadingContainer = document.getElementById('loadingContainer');
     const startSongButton = document.getElementById('startSong');
 
-    // Preload songs
-    const preloadContainer = document.getElementById('preloadContainer');
-    let loadedSongsCount = 0;
-    startSongButton.style.display = 'none';
+    // Check if songs are already in local storage
+    let songsLoaded = localStorage.getItem('songsLoaded');
+    if (songsLoaded) {
+        // Songs are already in local storage, no need to preload
+        loadingContainer.style.display = 'none';
+        startSongButton.style.display = 'block';
+        startSongButton.disabled = false;
+        console.log("Songs loaded from local storage.");
+    } else {
+        // Preload songs
+        const preloadContainer = document.getElementById('preloadContainer');
+        let loadedSongsCount = 0;
 
-    songs.forEach(song => {
-        const audio = document.createElement('audio');
-        audio.src = song.url;
-        audio.preload = 'auto';
-        preloadContainer.appendChild(audio);
+        songs.forEach(song => {
+            const audio = document.createElement('audio');
+            audio.src = song.url;
+            audio.preload = 'auto';
+            preloadContainer.appendChild(audio);
 
-        audio.addEventListener('canplaythrough', () => {
-            loadedSongsCount++;
-            if (loadedSongsCount === songs.length) {
-                // All songs are loaded, hide the loading animation and show the "Play Song" button
-                loadingContainer.style.display = 'none';
-                startSongButton.style.display = 'block';
-                startSongButton.disabled = false;
-                console.log("All songs are loaded.");
-            }
-        }, { once: true });
-    });
+            audio.addEventListener('canplaythrough', () => {
+                loadedSongsCount++;
+                if (loadedSongsCount === songs.length) {
+                    // All songs are loaded, save to local storage and enable the "Play Song" button
+                    localStorage.setItem('songsLoaded', true);
+                    loadingContainer.style.display = 'none';
+                    startSongButton.style.display = 'block';
+                    startSongButton.disabled = false;
+                    console.log("All songs are loaded and saved to local storage.");
+                }
+            }, { once: true });
+        });
+    }
 };
 
 document.getElementById('startGame').onclick = startGame;
@@ -301,9 +311,6 @@ document.getElementById('startSectionButton').onclick = function() {
 
 
 async function startGame() {
-    localStorage.clear(); // Clear local storage before starting a new game
-
-
     const playerNameInput = document.getElementById('playerName');
     let playerName = playerNameInput.value.trim();
     playedSongs = [];
