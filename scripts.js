@@ -131,8 +131,6 @@ document.getElementById('resetLeaderboard').onclick = function() {
     }
 };
 
-const songCache = {};
-
 window.onload = function() {
     const volume = document.getElementById('volumeSlider').value;
     const audioElements = ['song', 'correctSound', 'incorrectSound', 'gameOverSound', 'testSound'];
@@ -146,14 +144,6 @@ window.onload = function() {
     loadScoreboard();
     document.getElementById('scoreboard').style.display = 'block';
     document.getElementById('resetLeaderboard').style.display = 'block';
-
-    // Show the loading animation and text
-    const loadingContainer = document.getElementById('loadingContainer');
-    const startSongButton = document.getElementById('startSong');
-
-    loadingContainer.style.display = 'none';
-    startSongButton.style.display = 'block';
-    startSongButton.disabled = false;
 };
 
 document.getElementById('startGame').onclick = startGame;
@@ -284,6 +274,16 @@ document.getElementById('startSectionButton').onclick = function() {
 
 
 async function startGame() {
+    localStorage.clear(); // Clear local storage before starting a new game
+
+    const preloadContainer = document.getElementById('preloadContainer');
+    songs.forEach(song => {
+        const audio = document.createElement('audio');
+        audio.src = song.url;
+        audio.preload = 'auto';
+        preloadContainer.appendChild(audio);
+    });
+
     const playerNameInput = document.getElementById('playerName');
     let playerName = playerNameInput.value.trim();
     playedSongs = [];
@@ -360,6 +360,7 @@ async function startGame() {
 
 
 
+
 function onAudioPlaying() {
     console.log('Song is playing');
 }
@@ -405,47 +406,24 @@ function startSong() {
 
     clearInterval(progressInterval);
     document.getElementById('result').innerText = '';
-
     if (!currentSong) {
         currentSong = getRandomSong();
+        audio.src = currentSong.url;
+        audio.dataset.id = currentSong.id;
+        audio.load();  // Ensure the audio file is loaded
     }
-
-    if (!songCache[currentSong.id]) {
-        // Show loading animation
-        document.getElementById('loadingContainer').style.display = 'flex';
-        document.getElementById('startSong').style.display = 'none';
-
-        // Load the song
-        const audio = new Audio(currentSong.url);
-        audio.preload = 'auto';
-        audio.addEventListener('canplaythrough', () => {
-            songCache[currentSong.id] = audio;
-            playCurrentSong();
-        }, { once: true });
-
-        // Append audio element to preload container to cache it
-        const preloadContainer = document.getElementById('preloadContainer');
-        preloadContainer.appendChild(audio);
-    } else {
-        playCurrentSong();
-    }
-}
-
-function playCurrentSong() {
-    document.getElementById('loadingContainer').style.display = 'none';
-    document.getElementById('startSong').style.display = 'block';
     document.getElementById('startSong').disabled = true;
-    
-    audio = songCache[currentSong.id];
-    audio.currentTime = 0;
-    audio.play().then(() => {
-        console.log('Song started successfully');
-        isPlaying = true;
-        playCount++;
-        document.getElementById('startSong').disabled = false;
-    }).catch(error => {
-        console.error('Failed to start playback:', error);
-    });
+    if (audio.src) {
+        audio.load();
+    }
+    isPlaying = true;
+    playCount++;
+
+    if (playCount < maxPlaysPerRound) {
+        setTimeout(() => {
+            document.getElementById('startSong').disabled = false;
+        }, gameConfig.songDuration * 1000);
+    }
 }
 
 
@@ -494,13 +472,7 @@ function submitGuess() {
     const guessInput = document.getElementById('guess');
     const guess = guessInput.value.trim(); // Trim the whitespace from the guess
     const result = document.getElementById('result');
-
-    // Check if the input box is empty
-    if (!guess) {
-        result.innerText = 'Please enter the song name before submitting.';
-        return;
-    }
-
+    
     if (!currentSong) {
         result.innerText = 'No song is currently playing. Please start the song first.';
         return;
@@ -577,7 +549,6 @@ function submitGuess() {
             }, 2000);
         } else if (guessesLeft === 0) {
             incorrectGuessCount = 0;
-            result.innerText = `Incorrect! The correct song was "${song.name}".`;
             setTimeout(() => {
                 nextRound();
             }, 2000); // Move to the next round after an additional 2 seconds
@@ -628,8 +599,6 @@ function submitGuess() {
 
     updateScoreboard(); // Update the scoreboard after each guess
 }
-
-
 
 document.getElementById('closeEmailPopup').onclick = function() {
     document.getElementById('emailPopup').style.display = 'none';
@@ -847,4 +816,3 @@ async function saveIncorrectGuess(songName, userGuess, playerName) {
         console.error('Error saving incorrect guess:', error);
     }
 }
-
