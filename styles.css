@@ -104,6 +104,7 @@ body {
     display: inline-block;
     text-align: center;
     margin: 0 auto;
+    margin-top: 1%;
 }
 
 .button:hover {

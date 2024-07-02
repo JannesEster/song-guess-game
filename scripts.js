@@ -418,6 +418,7 @@ function startSong() {
     }
     isPlaying = true;
     playCount++;
+    document.getElementById('playsLeft').innerText = `${maxPlaysPerRound - playCount} Plays Left`; // Update plays left
 
     if (playCount < maxPlaysPerRound) {
         setTimeout(() => {
@@ -478,6 +479,11 @@ function submitGuess() {
         return;
     }
 
+    if (!guess) {
+        result.innerText = 'Please enter a guess.';
+        return;
+    }
+
     const song = currentSong;
     guessInput.value = ''; // Clear the guess input box
 
@@ -509,7 +515,13 @@ function submitGuess() {
         document.getElementById('guessesLeft').innerText = `${guessesLeft} ${guessesLeft === 1 ? 'Guess' : 'Guesses'} Left`;
         incorrectSound.play();
 
-        if (incorrectGuessCount >= 2 && gameConfig.enableHints && guessesLeft > 0) {
+        if (guessesLeft === 0) {
+            result.innerText = `Incorrect! The correct answer was "${song.name}".`;
+            incorrectGuessCount = 0;
+            setTimeout(() => {
+                nextRound();
+            }, 4000); // Move to the next round after an additional 4 seconds
+        } else if (incorrectGuessCount >= 2 && gameConfig.enableHints && guessesLeft > 0) {
             const hint = generateHint(song.name);
             result.innerText = `Hint! The song name is "${hint}".`;
             // Restart the song playback for the remaining duration
@@ -547,11 +559,6 @@ function submitGuess() {
                     console.error('Failed to start playback:', error);
                 });
             }, 2000);
-        } else if (guessesLeft === 0) {
-            incorrectGuessCount = 0;
-            setTimeout(() => {
-                nextRound();
-            }, 2000); // Move to the next round after an additional 2 seconds
         } else {
             result.innerText = 'Incorrect! Try again.';
             // Restart the song playback for the remaining duration
@@ -599,6 +606,7 @@ function submitGuess() {
 
     updateScoreboard(); // Update the scoreboard after each guess
 }
+
 
 document.getElementById('closeEmailPopup').onclick = function() {
     document.getElementById('emailPopup').style.display = 'none';
