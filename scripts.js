@@ -554,10 +554,10 @@ function generateHint(songName) {
     let hint = '';
 
     if (words.length === 1) {
-        hint = `${words[0].substring(0, 2)}${'*'.repeat(words[0].length - 2)}`;
+        hint = `${words[0].substring(0, 2)}${'-'.repeat(words[0].length - 2)}`;
     } else {
         for (let word of words) {
-            hint += `${word.charAt(0)}${'*'.repeat(word.length - 1)} `;
+            hint += `${word.charAt(0)}${'-'.repeat(word.length - 1)} `;
         }
         hint = hint.trim(); // Remove trailing space
     }
