@@ -354,6 +354,9 @@ textarea {
     border-radius: 10px;
     text-align: center;
 }
+#closeEmailPopup {
+    display: none;
+}
 
 .carousel-container {
     max-width: 800px; /* Adjust this value as needed */
