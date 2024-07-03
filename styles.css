@@ -365,3 +365,21 @@ textarea {
     height: 70vh; /* Set the height to 50% of the viewport height */
     object-fit: cover; /* Ensure the images cover the specified area without stretching */
 }
+
+.btn-gallery {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.btn-gallery:hover {
+    background-color: #45a049;
+}
+h2 {
+    color: white;
+}

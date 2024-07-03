@@ -26,19 +26,15 @@
     
     <div style="margin-top: 40px;">
         
-        <div class="dropdown">
-            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                Gallery
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item" href="#" onclick="showImages('mandoon')">Mandoon Estate</a></li>
-                <li><a class="dropdown-item" href="#" onclick="showImages('sandalford')">Sandalford Estate</a></li>
-                <li><a class="dropdown-item" href="#" onclick="showImages('oakover')">Oakover Estate</a></li>
-                <li><a class="dropdown-item" href="#" onclick="showImages('nikola')">Nikola Estate</a></li>
-                <li><a class="dropdown-item" href="#" onclick="showImages('mallard')">Mallard Duck</a></li>
-                <li><a class="dropdown-item" href="#" onclick="showImages('setup')">Setup Highlights</a></li>
-            </ul>
-        </div>
+        <h2 style="color: rgb(243, 231, 215);">Gallery</h2>
+    <div class="btn-group" role="group" aria-label="Gallery Buttons">
+        <button type="button" class="btn-gallery" onclick="showImages('mandoon')">Mandoon Estate</button>
+        <button type="button" class="btn-gallery" onclick="showImages('sandalford')">Sandalford Estate</button>
+        <button type="button" class="btn-gallery" onclick="showImages('oakover')">Oakover Estate</button>
+        <button type="button" class="btn-gallery" onclick="showImages('nikola')">Nikola Estate</button>
+        <button type="button" class="btn-gallery" onclick="showImages('mallard')">Mallard Duck</button>
+        <button type="button" class="btn-gallery" onclick="showImages('setup')">Setup Highlights</button>
+    </div>
 
         <!-- Bootstrap Carousel -->
         <div class="carousel-container">
@@ -92,20 +88,24 @@
         };
 
         function showImages(place) {
-            const carouselInner = document.getElementById('carouselInner');
-            carouselInner.innerHTML = '';
-            images[place].forEach((img, index) => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'carousel-item' + (index === 0 ? ' active' : '');
-                const imgElement = document.createElement('img');
-                imgElement.className = 'd-block w-100';
-                imgElement.src = img;
-                itemDiv.appendChild(imgElement);
-                carouselInner.appendChild(itemDiv);
-            });
-            const carousel = new bootstrap.Carousel('#galleryCarousel');
-            carousel.to(0); // Reset to the first slide
-        }
+        const carouselInner = document.getElementById('carouselInner');
+        carouselInner.innerHTML = '';
+        images[place].forEach((img, index) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'carousel-item' + (index === 0 ? ' active' : '');
+            const imgElement = document.createElement('img');
+            imgElement.className = 'd-block w-100';
+            imgElement.src = img;
+            itemDiv.appendChild(imgElement);
+            carouselInner.appendChild(itemDiv);
+        });
+        const carousel = new bootstrap.Carousel('#galleryCarousel');
+        carousel.to(0); // Reset to the first slide
+    }
+
+    window.onload = function() {
+        showImages('setup'); // Display Mandoon Estate images by default
+    };
     </script>
 </body>
 </html>
