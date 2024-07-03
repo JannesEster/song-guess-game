@@ -144,6 +144,9 @@ window.onload = function() {
     loadScoreboard();
     document.getElementById('scoreboard').style.display = 'block';
     document.getElementById('resetLeaderboard').style.display = 'block';
+
+    // Preload the songs on window load
+    preloadSongs();
 };
 
 document.getElementById('startGame').onclick = startGame;
@@ -177,6 +180,36 @@ function startSection() {
     document.getElementById('result').innerText = "Good Luck! Play Song to start the game!";
 }
 
+let preloadedSongs = [];
+
+function getRandomSongsForSection(difficulty, count) {
+    const availableSongsForDifficulty = songs.filter(song => song.difficulty === difficulty);
+    const selectedSongs = [];
+    while (selectedSongs.length < count && availableSongsForDifficulty.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableSongsForDifficulty.length);
+        const song = availableSongsForDifficulty.splice(randomIndex, 1)[0];
+        selectedSongs.push(song);
+    }
+    return selectedSongs;
+}
+
+function preloadSongs() {
+    const preloadContainer = document.getElementById('preloadContainer');
+    preloadContainer.innerHTML = ''; // Clear any previous preloaded songs
+    preloadedSongs = []; // Reset the preloaded songs array
+
+    gameConfig.sections.forEach(section => {
+        const songsToPreload = getRandomSongsForSection(section.difficulty, section.rounds);
+        console.log(`Preloading songs for ${section.difficulty} difficulty:`, songsToPreload);
+        preloadedSongs.push(...songsToPreload); // Add the preloaded songs to the array
+        songsToPreload.forEach(song => {
+            const audio = document.createElement('audio');
+            audio.src = song.url;
+            audio.preload = 'auto';
+            preloadContainer.appendChild(audio);
+        });
+    });
+}
 
 function getRandomSong() {
     const currentSection = getCurrentSection();
@@ -276,17 +309,10 @@ document.getElementById('startSectionButton').onclick = function() {
 async function startGame() {
     localStorage.clear(); // Clear local storage before starting a new game
 
-    const preloadContainer = document.getElementById('preloadContainer');
-    songs.forEach(song => {
-        const audio = document.createElement('audio');
-        audio.src = song.url;
-        audio.preload = 'auto';
-        preloadContainer.appendChild(audio);
-    });
-
     const playerNameInput = document.getElementById('playerName');
     let playerName = playerNameInput.value.trim();
     playedSongs = [];
+
 
     if (!playerName) {
         playerName = sessionStorage.getItem('currentPlayer');
@@ -360,7 +386,6 @@ async function startGame() {
 
 
 
-
 function onAudioPlaying() {
     console.log('Song is playing');
 }
@@ -415,10 +440,15 @@ function startSong() {
     clearInterval(progressInterval);
     document.getElementById('result').innerText = '';
     if (!currentSong) {
-        currentSong = getRandomSong();
-        audio.src = currentSong.url;
-        audio.dataset.id = currentSong.id;
-        audio.load();  // Ensure the audio file is loaded
+        if (preloadedSongs.length > 0) {
+            currentSong = preloadedSongs.shift(); // Get the next preloaded song
+            audio.src = currentSong.url;
+            audio.dataset.id = currentSong.id;
+            audio.load(); // Ensure the audio file is loaded
+        } else {
+            console.error('No preloaded songs available.');
+            return;
+        }
     }
     document.getElementById('startSong').disabled = true;
     if (audio.src) {
