@@ -6,6 +6,9 @@
     <title>Links Page</title>
     <link rel="stylesheet" href="styles.css">
     <link href="images\favicon (1).ico" rel="icon" type="image/x-icon">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
+
 </head>
 <body id="linksBody">
     <a href="index.html">
@@ -19,5 +22,90 @@
     </div>
     
     <button onclick="location.href='https://form.typeform.com/to/y3d58cxw?typeform-embed-id=8880023179505918&typeform-embed=embed-widget&typeform-source=completedj.com.au&typeform-medium=snippet&typeform-medium-version=next&embed-opacity=100&typeform-embed-handles-redirect=1&typeform-embed-no-heading=true'" class="button">Book in!</button>
+    
+    
+    <div style="margin-top: 40px;">
+        
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                Gallery
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <li><a class="dropdown-item" href="#" onclick="showImages('mandoon')">Mandoon Estate</a></li>
+                <li><a class="dropdown-item" href="#" onclick="showImages('sandalford')">Sandalford Estate</a></li>
+                <li><a class="dropdown-item" href="#" onclick="showImages('oakover')">Oakover Estate</a></li>
+                <li><a class="dropdown-item" href="#" onclick="showImages('nikola')">Nikola Estate</a></li>
+                <li><a class="dropdown-item" href="#" onclick="showImages('mallard')">Mallard Duck</a></li>
+                <li><a class="dropdown-item" href="#" onclick="showImages('setup')">Setup Highlights</a></li>
+            </ul>
+        </div>
+
+        <!-- Bootstrap Carousel -->
+        <div class="carousel-container">
+            <div id="galleryCarousel" class="carousel slide" >
+                <div class="carousel-inner" id="carouselInner">
+                    <!-- Carousel items will be injected here by JavaScript -->
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </button>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5.3 JS and dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const images = {
+            mandoon: [
+                'images/Mandoon (2).jpg',
+                'images/Mandoon (3).jpg',
+                'images/Mandoon.jpg'
+            ],
+            sandalford: [
+                'images/Sandalford.jpg',
+                'images/Sandalford (2).jpg',
+                'images/SPKS - Sandalford - Oak room.jpg',
+                'images/Ultimate Fantasy Package 2 - Complete DJ.jpg'
+            ],
+            oakover: [
+                'images/Oakover.jpg',
+                'images/sandalford2.jpg',
+                'images/sandalford3.jpg'
+            ],
+            nikola: [
+                'images/Nikola Estate.JPG',
+                'images/Nikola.jpg'
+            ],
+            mallard: [
+                'images/Mallard Duck.jpg'
+            ],
+            setup: [
+                'images/Nedlands BAF, B-TT.jpg'
+            ]
+        };
+
+        function showImages(place) {
+            const carouselInner = document.getElementById('carouselInner');
+            carouselInner.innerHTML = '';
+            images[place].forEach((img, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'carousel-item' + (index === 0 ? ' active' : '');
+                const imgElement = document.createElement('img');
+                imgElement.className = 'd-block w-100';
+                imgElement.src = img;
+                itemDiv.appendChild(imgElement);
+                carouselInner.appendChild(itemDiv);
+            });
+            const carousel = new bootstrap.Carousel('#galleryCarousel');
+            carousel.to(0); // Reset to the first slide
+        }
+    </script>
 </body>
 </html>
