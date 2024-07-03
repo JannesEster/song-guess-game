@@ -873,22 +873,16 @@ async function saveIncorrectGuess(songName, userGuess, playerName) {
         // Get the existing document
         const playerDoc = await getDoc(playerDocRef);
 
-        let guessData = {};
-        if (playerDoc.exists()) {
-            guessData = playerDoc.data();
-        }
+        let guessData = playerDoc.exists() ? playerDoc.data() : { guesses: [] };
 
         // Determine the next guess index
-        const nextIndex = Object.keys(guessData).length + 1;
+        const nextIndex = guessData.guesses.length;
 
         // Add the new incorrect guess
-        const newGuessKeySong = `songName${nextIndex}`;
-        const newGuessKeyUser = `userGuess${nextIndex}`;
-    
-
-        guessData[newGuessKeySong] = songName;
-        guessData[newGuessKeyUser] = userGuess;
-    
+        guessData.guesses.push({
+            songName,
+            userGuess
+        });
 
         // Save the document
         await setDoc(playerDocRef, guessData);
