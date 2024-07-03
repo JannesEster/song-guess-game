@@ -145,7 +145,8 @@ window.onload = function() {
     document.getElementById('scoreboard').style.display = 'block';
     document.getElementById('resetLeaderboard').style.display = 'block';
 
-    // Preload the songs on window load
+    // Ensure audio element is selected before preloading songs
+    audio = document.getElementById('song');
     preloadSongs();
 };
 
@@ -165,7 +166,8 @@ const maxRounds = gameConfig.numberOfRounds; // Use the config value
 let currentSong;
 let isPlaying = false;
 
-let audio;
+let audio = document.getElementById('song');
+
 let correctSound;
 let incorrectSound;
 let gameOverSound;
@@ -178,38 +180,70 @@ function startSection() {
     const currentSection = getCurrentSection();
     document.getElementById('roundInfo').innerHTML = `Section ${currentSectionIndex + 1}, Round ${sectionRound + 1}<br>Score: ${currentPlayer.score}`;
     document.getElementById('result').innerText = "Good Luck! Play Song to start the game!";
+
+    // Preload the first song for the new section
+    const currentPreloadedSection = preloadedSections[currentSectionIndex];
+    currentSectionSongs = currentPreloadedSection.songs.slice();
+    preloadCurrentSong(); // Preload the first song for the new section
 }
 
 let preloadedSongs = [];
 
 function getRandomSongsForSection(difficulty, count) {
-    const availableSongsForDifficulty = songs.filter(song => song.difficulty === difficulty);
+    const availableSongsForDifficulty = songs.filter(song => song.difficulty === difficulty && !playedSongs.includes(song.id));
     const selectedSongs = [];
     while (selectedSongs.length < count && availableSongsForDifficulty.length > 0) {
         const randomIndex = Math.floor(Math.random() * availableSongsForDifficulty.length);
         const song = availableSongsForDifficulty.splice(randomIndex, 1)[0];
         selectedSongs.push(song);
+        playedSongs.push(song.id); // Mark the song as played
     }
     return selectedSongs;
 }
 
+let currentSectionSongs = [];
+
+function preloadCurrentSong() {
+    if (currentSectionSongs.length > 0) {
+        currentSong = currentSectionSongs.shift();
+        audio = document.getElementById('song'); // Ensure audio element is referenced
+        audio.src = currentSong.url;
+        audio.dataset.id = currentSong.id;
+        console.log(`Preloaded song for round: ${currentRound}, section: ${currentSectionIndex + 1}`, currentSong);
+    }
+}
+
+let preloadedSections = [];
+
 function preloadSongs() {
     const preloadContainer = document.getElementById('preloadContainer');
     preloadContainer.innerHTML = ''; // Clear any previous preloaded songs
-    preloadedSongs = []; // Reset the preloaded songs array
+    playedSongs = []; // Reset the played songs array
+    preloadedSections = []; // Reset the preloaded sections array
 
-    gameConfig.sections.forEach(section => {
+    gameConfig.sections.forEach((section, index) => {
         const songsToPreload = getRandomSongsForSection(section.difficulty, section.rounds);
-        console.log(`Preloading songs for ${section.difficulty} difficulty:`, songsToPreload);
-        preloadedSongs.push(...songsToPreload); // Add the preloaded songs to the array
+        console.log(`Preloading songs for section ${index + 1} ${section.difficulty} difficulty:`, songsToPreload);
+        preloadedSections.push({
+            section: index + 1,
+            difficulty: section.difficulty,
+            songs: songsToPreload
+        });
+
         songsToPreload.forEach(song => {
-            const audio = document.createElement('audio');
-            audio.src = song.url;
-            audio.preload = 'auto';
-            preloadContainer.appendChild(audio);
+            const audioElement = document.createElement('audio');
+            audioElement.src = song.url;
+            audioElement.preload = 'auto';
+            preloadContainer.appendChild(audioElement);
         });
     });
+
+    // Initialize the songs for the first section
+    const firstSection = preloadedSections[0];
+    currentSectionSongs = firstSection.songs.slice();
+    preloadCurrentSong(); // Preload the first song for the first section
 }
+
 
 function getRandomSong() {
     const currentSection = getCurrentSection();
@@ -398,30 +432,10 @@ function onAudioPause(event) {
 function onAudioLoadedMetadata() {
     const currentSection = getCurrentSection();
     const randomStartTime = Math.floor(Math.random() * (audio.duration - currentSection.duration));
-    let currentTime = randomStartTime;
+    audio.currentTime = randomStartTime;
 
     document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar
-
-    progressInterval = setInterval(() => {
-        currentTime += 0.1;
-        const progress = ((currentTime - randomStartTime) / currentSection.duration) * 100;
-        document.getElementById('progressBar').style.width = `${progress}%`;
-
-        if (currentTime >= randomStartTime + currentSection.duration) {
-            clearInterval(progressInterval);
-            document.getElementById('progressBar').style.width = '0%';
-            audio.pause();
-            isPlaying = false;
-            document.getElementById('startSong').disabled = false;
-        }
-    }, 100);
-
-    audio.currentTime = randomStartTime;
-    audio.play().then(() => {
-        console.log('Song started successfully');
-    }).catch(error => {
-        console.error('Failed to start playback:', error);
-    });
+    console.log(`Audio metadata loaded. Ready to start at: ${randomStartTime}`);
 }
 
 function updatePlaysLeft() {
@@ -439,29 +453,42 @@ function startSong() {
 
     clearInterval(progressInterval);
     document.getElementById('result').innerText = '';
-    if (!currentSong) {
-        if (preloadedSongs.length > 0) {
-            currentSong = preloadedSongs.shift(); // Get the next preloaded song
-            audio.src = currentSong.url;
-            audio.dataset.id = currentSong.id;
-            audio.load(); // Ensure the audio file is loaded
-        } else {
-            console.error('No preloaded songs available.');
-            return;
-        }
-    }
     document.getElementById('startSong').disabled = true;
-    if (audio.src) {
-        audio.load();
-    }
-    isPlaying = true;
-    playCount++;
-    updatePlaysLeft(); // Update plays left
 
-    if (playCount < maxPlaysPerRound) {
-        setTimeout(() => {
-            document.getElementById('startSong').disabled = false;
-        }, gameConfig.songDuration * 1000);
+    if (audio.src) {
+        audio.load(); // Ensure the audio is loaded
+        audio.play().then(() => {
+            console.log('Song started successfully');
+            isPlaying = true;
+            playCount++;
+            updatePlaysLeft(); // Update plays left
+
+            const currentSection = getCurrentSection();
+            const startTime = audio.currentTime;
+            let currentTime = startTime;
+
+            progressInterval = setInterval(() => {
+                currentTime += 0.1;
+                const progress = ((currentTime - startTime) / currentSection.duration) * 100;
+                document.getElementById('progressBar').style.width = `${progress}%`;
+
+                if (currentTime >= startTime + currentSection.duration) {
+                    clearInterval(progressInterval);
+                    document.getElementById('progressBar').style.width = '0%';
+                    audio.pause();
+                    isPlaying = false;
+                    document.getElementById('startSong').disabled = false;
+                }
+            }, 100);
+
+            if (playCount < maxPlaysPerRound) {
+                setTimeout(() => {
+                    document.getElementById('startSong').disabled = false;
+                }, gameConfig.songDuration * 1000);
+            }
+        }).catch(error => {
+            console.error('Failed to start playback:', error);
+        });
     }
 }
 
@@ -728,6 +755,11 @@ function nextRound() {
         currentSectionIndex++;
         if (currentSectionIndex < gameConfig.sections.length) {
             showSectionPopup(); // Show the popup for the new section
+
+            // Preload the first song for the new section
+            const newSection = preloadedSections[currentSectionIndex];
+            currentSectionSongs = newSection.songs.slice();
+            preloadCurrentSong();
         }
     }
 
@@ -754,6 +786,9 @@ function nextRound() {
         document.getElementById('roundInfo').innerHTML = `Section ${currentSectionIndex + 1}, Round ${sectionRound + 1}<br>Score: ${currentPlayer.score}`;
         document.getElementById('startSong').style.display = 'block';
         document.getElementById('startSong').disabled = false;
+
+        // Preload the next song for the new round
+        preloadCurrentSong();
     }
 
     document.getElementById('progressBar').style.width = '0%';
