@@ -3,6 +3,40 @@ import { collection, getDocs, addDoc, deleteDoc, doc, runTransaction, onSnapshot
 import { songs } from './song-list.js';
 import { gameConfig } from './game-config.js';
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to determine if a color is light or dark
+    function isColorDark(color) {
+        const r = parseInt(color.substr(1, 2), 16);
+        const g = parseInt(color.substr(3, 2), 16);
+        const b = parseInt(color.substr(5, 2), 16);
+        // Calculate the brightness of the color
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+
+    // Function to change the image based on the background color
+    function updateLogoBasedOnBackgroundColor() {
+        const gameLogo = document.getElementById('gameLogo');
+        const darkModeImage = "images/completedjlogoWhite.png";
+        const lightModeImage = "images/complete dj logo.png";
+
+        // Get the computed background color of the body
+        const backgroundColor = window.getComputedStyle(document.body, null).getPropertyValue('background-color');
+        const rgb = backgroundColor.match(/\d+/g);
+        const hexColor = `#${((1 << 24) + (+rgb[0] << 16) + (+rgb[1] << 8) + +rgb[2]).toString(16).slice(1)}`;
+
+        if (isColorDark(hexColor)) {
+            // Background is dark
+            gameLogo.src = darkModeImage;
+        } else {
+            // Background is light
+            gameLogo.src = lightModeImage;
+        }
+    }
+
+    // Run the function on page load
+    updateLogoBasedOnBackgroundColor();
+});
 
 
 document.getElementById('testVolume').onclick = function() {
@@ -139,6 +173,7 @@ window.onload = function() {
         if (audioElement) {
             audioElement.volume = volume;
         }
+    
     });
 
     loadScoreboard();
