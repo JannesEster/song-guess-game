@@ -358,6 +358,7 @@ textarea {
 .carousel-container {
     max-width: 800px; /* Adjust this value as needed */
     margin: 0 auto;
+    padding: 1%;
 }
 
 .carousel-item img {
@@ -379,7 +380,4 @@ textarea {
 
 .btn-gallery:hover {
     background-color: #45a049;
-}
-h2 {
-    color: white;
 }
