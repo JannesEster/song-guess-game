@@ -479,11 +479,14 @@ function updatePlaysLeft() {
     const playsLeftElement = document.getElementById('playsLeft');
     const playsLeft = maxPlaysPerRound - playCount;
     if (playsLeft === 0) {
-        playsLeftElement.style.display = 'none';
+        playsLeftElement.innerText = "No Plays Left";
+        playsLeftElement.style.display = 'block'; // Ensure "Plays Left" is visible
     } else {
         playsLeftElement.innerText = `${playsLeft} ${playsLeft === 1 ? 'Play' : 'Plays'} Left`;
+        playsLeftElement.style.display = 'block'; // Ensure "Plays Left" is visible
     }
 }
+
 
 function startSong() {
     if (isPlaying || playCount >= maxPlaysPerRound) return;
@@ -830,7 +833,10 @@ function nextRound() {
         currentSong = null;
         guessesLeft = 3;
         document.getElementById('guessesLeft').innerText = `${guessesLeft} Guesses Left`;
-        playCount = 0;
+        
+        playCount = 0; // Reset play count before updating the display
+        updatePlaysLeft(); // Update the "Plays Left" display
+        document.getElementById('playsLeft').style.display = 'block'; // Ensure "Plays Left" is visible
 
         currentRound++;
         document.getElementById('roundInfo').innerHTML = `Section ${currentSectionIndex + 1}, Round ${sectionRound + 1}<br>Score: ${currentPlayer.score}`;
@@ -843,6 +849,8 @@ function nextRound() {
 
     document.getElementById('progressBar').style.width = '0%';
 }
+
+
 
 
 
