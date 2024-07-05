@@ -354,9 +354,21 @@ function showSectionPopup() {
     const message = sectionMessages[currentSectionIndex];
     const guide = sectionGuides[currentSectionIndex];
     const note = sectionNotes[currentSectionIndex];
-    document.getElementById('sectionPopupMessage').innerText = message;
-    document.getElementById('sectionPopupGuide').innerText = guide;
-    document.getElementById('sectionNotes').innerText = note;  
+    
+    let scoringExplanation = '';
+    if (currentSectionIndex === 0) { // Only add scoring explanation for the first section
+        scoringExplanation = `
+            <h3>Scoring System:</h3>
+            <p>If you guess the song correctly on the first try, you receive 3 points.</p>
+            <p>On the second try, you receive 2 points.</p>
+            <p>On the final try, you receive 1 point.</p>
+            <p>If you guess the song incorrectly on all tries, you receive 0 points.</p>
+        `;
+    }
+
+    document.getElementById('sectionPopupMessage').innerHTML = message;
+    document.getElementById('sectionPopupGuide').innerHTML = guide + scoringExplanation;
+    document.getElementById('sectionNotes').innerHTML = note;  
     document.getElementById('sectionPopup').style.display = 'block';
 }
 
@@ -373,6 +385,7 @@ document.getElementById('startSectionButton').onclick = function() {
     closeSectionPopup();
     startSection();
 };
+
 
 
 
