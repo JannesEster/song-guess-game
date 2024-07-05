@@ -7,7 +7,5 @@ export const gameConfig = {
         { rounds: 6, difficulty: 'Medium', duration: 2 },
         { rounds: 8, difficulty: 'Hard', duration: 1 }
     ],
-    enableHints: true // true for on and false for off to turn Hints ON or OFF
-    pointsPerCorrectAnswer: 1, // Points for a correct answer
-    pointsPerIncorrectAnswer: -1 // Points for an incorrect answer
+    enableHints: true, // true for on and false for off to turn Hints ON or OFF
 };

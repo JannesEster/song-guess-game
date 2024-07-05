@@ -590,8 +590,20 @@ function submitGuess() {
     guessInput.value = ''; // Clear the guess input box
 
     if (guess.toLowerCase() === song.name.toLowerCase().trim()) { // Trim the whitespace from the song name
-        currentPlayer.score += 1; // Increment score
-        result.innerText = `Correct! The song is "${song.name}"`;
+        let pointsAwarded;
+        switch (incorrectGuessCount) {
+            case 0:
+                pointsAwarded = 3; // First try
+                break;
+            case 1:
+                pointsAwarded = 2; // Second try
+                break;
+            case 2:
+                pointsAwarded = 1; // Final try
+                break;
+        }
+        currentPlayer.score += pointsAwarded; // Award points based on the number of incorrect guesses
+        result.innerText = `Correct! The song is "${song.name}". You earned ${pointsAwarded} points.`;
         correctSound.play();
         incorrectGuessCount = 0;
         document.getElementById('progressBar').style.width = '0%'; // Reset the progress bar
@@ -618,7 +630,7 @@ function submitGuess() {
         incorrectSound.play();
 
         if (guessesLeft === 0) {
-            result.innerText = `Incorrect! The correct answer was "${song.name}".`;
+            result.innerText = `Incorrect! The correct answer was "${song.name}". You earned 0 points.`;
             incorrectGuessCount = 0;
             setTimeout(() => {
                 nextRound();
@@ -708,6 +720,7 @@ function submitGuess() {
 
     updateScoreboard(); // Update the scoreboard after each guess
 }
+
 
 
 document.getElementById('closeEmailPopup').onclick = function() {
