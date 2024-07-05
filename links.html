@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Links Page</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="images\favicon (1).ico" rel="icon" type="image/x-icon">
+    <link href="images/favicon (1).ico" rel="icon" type="image/x-icon">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-
-
 </head>
 <body id="linksBody">
     <a href="index.html">
@@ -16,29 +14,27 @@
     </a>
     <button onclick="location.href='https://www.completedj.com.au/'" class="button">Website</button>
     <div style="margin-top: 20px; margin-bottom: 20px;">
-        <button onclick="location.href='https://completedj.fillout.com/10quickquestions'" class="button">Part 1 - Questionare</button>
-        <button onclick="location.href='index.html'"  class="button">Name That Tune!</button>
-        <button onclick="location.href='https://form.typeform.com/to/y3d58cxw?typeform-embed-id=8880023179505918&typeform-embed=embed-widget&typeform-source=completedj.com.au&typeform-medium=snippet&typeform-medium-version=next&embed-opacity=100&typeform-embed-handles-redirect=1&typeform-embed-no-heading=true'" class="button">Part 3 - Warehouse!</button>
-    </div>
-    
-    <button onclick="location.href='https://form.typeform.com/to/y3d58cxw?typeform-embed-id=8880023179505918&typeform-embed=embed-widget&typeform-source=completedj.com.au&typeform-medium=snippet&typeform-medium-version=next&embed-opacity=100&typeform-embed-handles-redirect=1&typeform-embed-no-heading=true'" class="button">Book in!</button>
-    
-    
-    <div style="margin-top: 40px;">
-        
-        <h2 style="color: rgb(243, 231, 215);">Gallery</h2>
-    <div class="btn-group" role="group" aria-label="Gallery Buttons">
-        <button type="button" class="btn-gallery" onclick="showImages('mandoon')">Mandoon Estate</button>
-        <button type="button" class="btn-gallery" onclick="showImages('sandalford')">Sandalford Estate</button>
-        <button type="button" class="btn-gallery" onclick="showImages('oakover')">Oakover Estate</button>
-        <button type="button" class="btn-gallery" onclick="showImages('nikola')">Nikola Estate</button>
-        <button type="button" class="btn-gallery" onclick="showImages('mallard')">Mallard Duck</button>
-        <button type="button" class="btn-gallery" onclick="showImages('setup')">Setup Highlights</button>
+        <button onclick="location.href='https://completedj.fillout.com/10quickquestions'" class="button">Part 1 - Questionnaire</button>
+        <button onclick="location.href='index.html'" class="button">Name That Tune!</button>
+        <button onclick="location.href='Embed-page.html'" class="button">Book in!</button>
     </div>
 
-        <!-- Bootstrap Carousel -->
+    
+   
+
+    <div style="margin-top: 40px;">
+        <h2 style="color: rgb(243, 231, 215);">Gallery</h2>
+        <div class="btn-group" role="group" aria-label="Gallery Buttons">
+            <button type="button" class="btn-gallery" onclick="showImages('mandoon')">Mandoon Estate</button>
+            <button type="button" class="btn-gallery" onclick="showImages('sandalford')">Sandalford Estate</button>
+            <button type="button" class="btn-gallery" onclick="showImages('oakover')">Oakover Estate</button>
+            <button type="button" class="btn-gallery" onclick="showImages('nikola')">Nikola Estate</button>
+            <button type="button" class="btn-gallery" onclick="showImages('mallard')">Mallard Duck</button>
+            <button type="button" class="btn-gallery" onclick="showImages('setup')">Setup Highlights</button>
+        </div>
+
         <div class="carousel-container">
-            <div id="galleryCarousel" class="carousel slide" >
+            <div id="galleryCarousel" class="carousel slide">
                 <div class="carousel-inner" id="carouselInner">
                     <!-- Carousel items will be injected here by JavaScript -->
                 </div>
@@ -50,13 +46,12 @@
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                     <span class="visually-hidden">Next</span>
                 </button>
-            </button>
+            </div>
         </div>
     </div>
 
-    <!-- Bootstrap 5.3 JS and dependencies -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
         const images = {
             mandoon: [

@@ -12,7 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Calculate the brightness of the color
         const brightness = (r * 299 + g * 587 + b * 114) / 1000;
         return brightness < 128;
+        
     }
+
 
     // Function to change the image based on the background color
     function updateLogoBasedOnBackgroundColor() {
@@ -331,14 +333,14 @@ const sectionMessages = [
 ];
 
 const sectionGuides = [
-    "You have a total of 16 rounds and must complete, or skip through all 16 to be placed on the leaderboard!",
+    "You have a total of 20 rounds and must complete, or skip through all 20 to be placed on the leaderboard!",
     "You now have 4 seconds to listen to each song!",
     "You now have 2 seconds to listen to each song!",
     "You now only have 1 seconds to listen to each song!"
 ];
 
 const sectionNotes = [
-    "This is the easy section! 4 rounds with 8 seconds to listen to each song! Good Luck!",
+    "This is the easy section! 2 rounds with 6 seconds to listen to each song! Good Luck!",
     "Here comes the next 4 rounds! Good Luck!",
     "An incorrect guess will give you a extra listen, use this wisely!",
     "This is the hardest section! Feel free to skip to the end if you find it too hard :)"
